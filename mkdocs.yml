@@ -1,0 +1,23 @@
+repo_url: https://github.com/moshloop/ansible-provision/
+repo_name: Ansible Provision
+site_name: Ansible provision
+theme: material
+markdown_extensions:
+  - admonition
+  - fenced_code
+  - codehilite:
+      linenums: true
+
+
+nav:
+  - Getting Started: ./index.md
+  - Targets:
+    - AWS: ./aws.md
+    - Azure: ./azure.md
+    - vmware: ./vmware.md
+  - Volumes: ./volumes.md
+  - Load Balancing: ./load-balancing.md
+  - Firewalls: ./firewall.md
+  - Bootstrapping: ./bootstrapping.md
+  - Reference: ./reference.md
+  - Ansible Addons: ./ansible-addons.md
