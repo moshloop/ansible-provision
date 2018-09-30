@@ -1,0 +1,68 @@
+  - include_tasks: _ami.yml
+
+  - name: lookup all security groups
+    ec2_group_facts:
+      region: "{{region}}"
+    delegate_to: localhost
+    run_once: true
+    register: sg
+
+  - name: map security groups to name=>id
+    set_fact:
+      sg_groups: "{{sg.security_groups|json_query('[*].{id: group_id, name: group_name}') | to_map( 'name', 'id') }}"
+
+  - name: setting az for "{{inventory_hostname}}"
+    set_fact: az="{{region}}{{inventory_hostname | zone(subnets_count, region) }}"
+
+  - ec2_vpc_subnet_facts:
+      region: "{{region}}"
+    register: all_subnets
+
+  - debug: var=all_subnets verbosity=1
+  - set_fact: all_subnets="{{all_subnets.subnets}}"
+
+  - name: set subnet
+    set_fact: subnet="{{all_subnets | find_subnets(subnet_name, az) |  map(attribute='id') | first}}"
+
+  - set_fact:
+      security_group_ids: []
+
+  - name: merge security group names
+    set_fact:
+      security_groups: "{{security_groups}} + ['{{role}}-{{purposeId }}']"
+    when: purposeId is defined and role != purposeId
+
+  - debug: var=security_groups verbosity=1
+
+  - name: lookup security group id by name
+    set_fact:  security_group_ids="{{security_group_ids}} + ['{{sg_groups.get(item | lower,'')}}']"
+    with_items: "{{security_groups}}"
+
+  - include_tasks: _cloud_init.yml
+
+  - name: Looking up existing tags to prevent update
+    block:
+      - set_fact: tags="{{ tags | combine(ec2_instance.tags | reject_startswith('aws:')) }}"
+    when: ec2_instance is defined and (tags_update is defined and tags_update == 'false')
+    delegate_to: localhost
+
+  - set_fact:
+      tags: "{{all_tags | combine(tags) }}"
+
+  - ec2_vol_facts:
+      region: "{{region}}"
+      filters:
+        volume-id: "{{ (ec2_instance.block_device_mapping  | selectattr('device_name', 'equalto', '/dev/sda1') | first).volume_id }}"
+    register: boot_disk
+    when: ec2_instance is defined and (boot_disk_update is defined and boot_disk_update == 'false')
+
+  - debug: var=boot_disk verbosity=1
+    when: boot_disk is defined
+
+  - name: Looking up boot disk size to prevent re-creation
+    set_fact:
+      boot_disk_size: "{{ boot_disk.volumes[0].size }}"
+      boot_disk_type: "{{ boot_disk.volumes[0].type }}"
+    when: boot_disk is defined and boot_disk.volumes is defined and (boot_disk_update is defined and boot_disk_update == 'false')
+    delegate_to: localhost
+

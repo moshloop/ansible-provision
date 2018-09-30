@@ -1,0 +1,70 @@
+  - set_fact: debug=false
+    when: debug is not defined
+
+  - file:
+      path: build
+      state: directory
+    run_once: true
+
+  - include_tasks: generateCert.yml
+    run_once: true
+    tags:
+      - elb
+
+  - name: Global lookups
+    import_tasks: lookups.yml
+    run_once: true
+    tags: always
+
+  - name: Gather running instances facts
+    ec2_remote_facts:
+      region: "{{region}}"
+    register: ec2_facts
+    run_once: true
+    tags: instances
+
+  - name: Instance lookup
+    include_tasks: _instance_lookups.yml
+    when: "'virtual' not in group_names"
+    tags: instances
+
+  - name: deploy misc cloudformation
+    include_tasks: 'misc-cloudformation.yml'
+    with_fileglob:
+      - "cloudformation/*"
+    tags:
+      - misc
+
+  - set_fact: deploy_elb=true
+    tags:
+      - elb
+
+  - debug: msg="Deploying elb's"
+    tags:
+      - elb
+
+  - name:  deploy security groups
+    import_tasks: firewall.yml
+    tags:
+      - fw
+
+  - name: deploy instances
+    import_tasks: instances.yml
+    tags:
+      - instances
+
+  - debug: var=groups['all']
+    run_once: true
+    tags:
+      - inventory
+
+  - file: path=docs state=directory
+    run_once: true
+    tags:
+      - inventory
+
+  - name: render inventory table
+    template: src=inventory.md.tpl dest=docs/{{stack_name | upper}}.md
+    run_once: true
+    tags:
+      - inventory

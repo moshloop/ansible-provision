@@ -1,0 +1,18 @@
+  - name: setting az for "{{inventory_hostname}}"
+    set_fact: az="{{region}}{{inventory_hostname | zone(subnets_count, region) }}"
+
+  - debug: msg="{{inventory_hostname}}/{{subnets_count}} => {{az}}"
+    verbosity: 1
+
+  - set_fact: query="instances[?tags.Name=='{{inventory_hostname}}' && state == 'running']"
+
+  - set_fact: "ec2_instances={{ec2_facts| json_query(query) }}"
+
+  - set_fact: "ec2_instance={{ec2_instances[0]}}"
+    when: ec2_instances | length > 0
+
+  - set_fact: ip="{{ ec2_instance['private_ip_address'] | default('') }}"
+    when: ec2_instance is defined
+
+  - debug: var=ec2_instance verbosity=1
+    when: ec2_instance is defined

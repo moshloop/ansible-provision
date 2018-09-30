@@ -1,0 +1,6 @@
+- name: Get facts for all virtual networks
+  azure_rm_virtualnetwork_facts:
+    resource_group: "{{resource_group}}"
+  register: networks
+
+- debug: var=networks

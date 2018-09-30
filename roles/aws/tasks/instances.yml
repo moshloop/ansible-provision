@@ -1,0 +1,75 @@
+  - debug: var=ec2_facts verbosity=3
+
+  - include_tasks: _ec2.yml
+    when: "'virtual' not in group_names"
+
+  - debug: var=hostvars[inventory_hostname] verbosity=2
+  - debug: var=play_hosts verbosity=2
+
+  - name: Create build directory
+    file:
+      path: build
+      state: directory
+  - name: render instances, volumes, ELB and DNS
+    template: src=instances.cf.tpl dest="build/instances.cf"
+    delegate_to: localhost
+    run_once: true
+
+  - debug: var=cf_template_bucket verbosity=2
+    run_once: true
+
+  - name: Create cloudformation S3 bucket
+    aws_s3:
+      bucket: "{{cf_template_bucket}}"
+      region: "{{region}}"
+      mode: create
+    run_once: true
+    when: "dry_run is not defined"
+    delegate_to: localhost
+
+  - name: upload cloudformation to S3
+    aws_s3:
+      bucket: "{{cf_template_bucket}}"
+      object: "{{timestamp}}-{{inventory_file | basename}}.cf"
+      region: "{{region}}"
+      src: build/instances.cf
+      mode: put
+    register: url
+    run_once: true
+    when: "dry_run is not defined"
+    delegate_to: localhost
+
+  - name: deploy stack {{stack_name}}
+    run_once: true
+    cloudformation:
+      stack_name: "{{stack_name}}"
+      create_changeset: "{{create_change_set}}"
+      state: "present"
+      region: "{{region}}"
+      template_url: "{{url.url}}"
+    when: "dry_run is not defined"
+    register: out
+
+  - debug: var=out
+    run_once: true
+
+  - set_fact:
+      cf_url: "https://{{region}}.console.aws.amazon.com/cloudformation/home?region={{region}}#/changeset/detail?changeSetId={{out.warnings[1] | regex_search('arn:.*') | regex_replace('/', '%2F') }}"
+    when: out.warnings is defined and out.warnings | length >= 3
+
+  - name: Export Cloudformation change url
+    shell: echo "{{cf_url}}" >> urls
+    when: cf_url is defined
+
+  - name: Gather running instances facts
+    ec2_remote_facts:
+      region: "{{region}}"
+    register: ec2_facts
+    when:  dry_run is not defined or dry_run != 'true'
+    run_once: true
+
+  # - name: print IP's for new instances
+  #   include_tasks: _print_resource.yml
+  #   with_items: "{{out.stack_resources}}"
+  #   run_once: true
+  #   when:  dry_run is not defined and dry_run != 'true' and 'stack_resources' in out

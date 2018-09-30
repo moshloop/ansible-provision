@@ -1,0 +1,135 @@
+  - name: Finding latest template for {{template}} in "{{datacenter}}"
+    vmware_guest_search:
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      datacenter: "{{datacenter}}"
+      validate_certs: no
+      name: "{{template}}"
+      # name_match: last
+    delegate_to: localhost
+    register: templates
+
+  - set_fact: template_name="{{templates.vms[0]}}"
+
+  - vmware_datastore_facts:
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      datacenter: "{{datacenter}}"
+      cluster: "{{cluster}}"
+      validate_certs: no
+    delegate_to: localhost
+    register: datastores
+
+  - set_fact:
+      datastore: "{{datastores.datastores | selectattr('type', 'equalto', 'vsan') | first}}"
+
+  - set_fact:
+      root_volumes:
+        - size_gb: "{{boot_disk_size | default(40)}}"
+          type: thin
+          mount: /
+          datastore: "{{datastore.name}}"
+      data_volumes: "{{data_volumes | default([])}}"
+
+  - set_fact:
+      data_volumes:
+        - size_gb: "{{data_volume}}"
+          type: thin
+          mount: "{{data_volume_mount | default('/data')}}"
+          datastore: "{{datastore.name}}"
+      volumes:
+        - size: "{{data_volume}}"
+          id: VolData
+          dev: /dev/sdb
+          format: lvm
+          mount: VolData
+        - size: "{{(data_volume | int) - 1}}"
+          id: VolGroup-1
+          format: xfs
+          owner: root
+          dev: VolData
+          format: xfs
+          mount: "{{data_volume_mount | default('/data')}}"
+    when: data_volume is defined
+
+  - cloudinit_iso:
+      user: "{{ lookup('template', 'cloud-init.tpl') }}"
+      meta: |
+        local-hostname: "{{inventory_hostname | lower}}"
+      dest: /tmp/{{inventory_hostname}}.iso
+
+  - name: "Upload cloudinit iso to: {{datacenter}}/{{datastore.name}} via {{hostname}}"
+    vsphere_copy:
+      host:  "{{hostname}}"
+      login:  "{{username}}"
+      password: "{{password}}"
+      src: /tmp/{{inventory_hostname}}.iso
+      datacenter: "{{datacenter}}"
+      datastore: "{{datastore.name}}"
+      path: "/cloud-init/{{inventory_hostname}}.iso"
+      validate_certs: no
+
+  - set_fact:
+      networks:
+        - vlan: "{{vlan}}"
+          type: dhcp
+    when: vlan is defined and vlan != ''
+
+  - name: Configuring network via DVSwitch Name
+    set_fact:
+      networks:
+        - name: "{{network}}"
+          type: "{{ 'dhcp' if static_ip is not defined else 'static' }}"
+    when: network is defined
+
+  - debug: var=volumes verbosity=1
+  - name: Launching {{inventory_hostname}} on {{datacenter}}/{{cluster}} with {{template_name}}
+    vmware_guest2:
+      debug: True
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      name: "{{inventory_hostname}}"
+      validate_certs: False
+      template: "{{template_name}}"
+      datacenter: "{{datacenter}}"
+      datastore: "{{datastore.name}}"
+      cluster: "{{cluster}}"
+      folder: "{{datacenter}}/vm"
+      networks: "{{networks}}"
+      disk: "{{root_volumes + data_volumes}}"
+      hardware:
+        memory_mb: "{{(mem | default(4)) * 1024}}"
+        num_cpus: "{{cpu | default(2) }}"
+    register: vm
+    delegate_to: localhost
+
+  - debug: var=vm
+
+  - debug: msg="Cloned {{inventory_hostname}} -> {{vm.instance.hw_product_uuid}}"
+
+  - name: Attach ISO
+    vmware_guest2:
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      validate_certs: False
+      uuid: "{{vm.instance.hw_product_uuid}}"
+      cdrom:
+        type: iso
+        iso_path: "[{{datastore.name}}] cloud-init/{{inventory_hostname}}.iso"
+    register: vm
+    delegate_to: localhost
+
+  - name: Power On
+    vmware_guest2:
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      validate_certs: False
+      uuid: "{{vm.instance.hw_product_uuid}}"
+      state: poweredon
+    register: vm
+    delegate_to: localhost

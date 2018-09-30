@@ -1,0 +1,26 @@
+  - ec2_ami_find:
+      region: "{{region}}"
+      name: "{{ami}}*"
+      is_public: false
+      no_result_action: fail
+      sort: name
+      sort_order: descending
+      sort_end: 1
+    register: ami_find
+
+  - set_fact: ami="{{ami_find.results[0].ami_id}}"
+
+  - block:
+        - debug: msg="Updating instance to use {{ami}} ({{ami_find.results[0].name}})"
+    when: ec2_instance is defined and ec2_instance.image_id != ami
+
+  - block:
+        - debug: msg="Skipping ami update to {{ami}} {{ami_find.results[0].name}}, reusing {{ec2_instance.image_id}}"
+        - set_fact: ami="{{ec2_instance.image_id}}"
+    when: ec2_instance is defined and ec2_instance.image_id != ami and (ami_update is defined and ami_update == 'false')
+
+  - debug: msg="AMI is unchanged {{ami}} ({{ami_find.results[0].name}})"
+    when: ec2_instance is defined and ec2_instance.image_id == ami
+
+  - debug: msg="Using {{ami}} ({{ami_find.results[0].name}})"
+    when: ec2_instance is not defined

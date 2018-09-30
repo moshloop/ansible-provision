@@ -1,0 +1,18 @@
+  - name: rendering user-data for {{inventory_hostname}}
+    template: src="cloud-init.tpl" dest="/tmp/{{inventory_hostname}}"
+    delegate_to: localhost
+
+  - set_fact:
+       userData: "{{lookup('file', '/tmp/' + inventory_hostname) | b64encode }}"
+    delegate_to: localhost
+
+  - block:
+        - debug: msg="Looking up existing user data definition to reuse"
+        - ec2_instance_attribute_facts:
+            instance_id: "{{ec2_instance.id}}"
+            attribute: "userData"
+            region: "{{region}}"
+          register: userDataFact
+        - set_fact: userData="{{userDataFact.attributes.UserData.Value}}"
+    when: ec2_instance is defined and (userData_update is defined and userData_update == 'false')
+    delegate_to: localhost

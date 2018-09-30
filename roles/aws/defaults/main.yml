@@ -1,0 +1,26 @@
+create_change_set: true
+boot_disk_update: 'false'
+userData_update: 'false'
+tags_update: 'false'
+ami_update: 'false'
+sslPolicy: ELBSecurityPolicy-2015-05
+now: "{{lookup('pipe', 'date')}}"
+timestamp: "{{lookup('pipe', 'date +\"%Y%m%dT%H%M%S\"')}}"
+stack_name: "{{inventory_file | basename}}"
+default_ssl_certificate: defaul_ssl_cert
+cf_template_bucket: "cf-{{region}}-{{account_id}}"
+subnets_count: 1
+git_path: /etc/repository
+ssh_key_user: ec2-user
+internal_domain: "{{domain}}"
+boot_disk_size: 50
+boot_disk_type: gp2
+boot_disk_update: 'false'
+root_domain: "{{domain}}"
+excluded_srv_records:
+    - localhost
+    - sam
+    - instances
+    - bastion
+    - virtual
+    - ungrouped

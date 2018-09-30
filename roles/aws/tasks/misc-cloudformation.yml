@@ -1,0 +1,15 @@
+  - name: render cloudformation template
+    template: src="{{item}}" dest="build/{{item | basename}}"
+    tags:
+      - misc
+
+  - name: deploy custom cloudformation
+    run_once: true
+    cloudformation:
+      stack_name: "{{ (item | basename  | splitext)[0] }}"
+      create_changeset: true
+      state: "present"
+      region: "{{region}}"
+      template: "build/{{item | basename}}"
+    tags:
+      - misc

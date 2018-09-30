@@ -1,0 +1,68 @@
+  - set_fact:
+      subscription_id: "{{ subscription_id | default(account_id) }}"
+      image: "{{ image | default(ami) }}"
+
+  - set_fact: debug=false
+    run_once: true
+    when: "debug is not defined"
+    tags:
+      - instances
+
+  - set_fact: enable_asg=false
+    run_once: true
+    when: "enable_asg is not defined"
+    tags:
+      - instances
+
+  - debug: msg="debug={{debug}} asg={{enable_asg}} sub={{subscription_id}} region={{region}}"
+    tags:
+      - instances
+
+  - name:  deploy security groups
+    include_tasks: firewall.yml
+    run_once: true
+    tags:
+      - fw
+
+  - name: rendering user-data for {{inventory_hostname}}
+    template: src="init.sh.tpl" dest="/tmp/{{inventory_hostname}}"
+    delegate_to: localhost
+    tags:
+      - instances
+
+  - set_fact:
+       userData: "{{lookup('file', '/tmp/' + inventory_hostname) | b64encode }}"
+    delegate_to: localhost
+    tags:
+      - instances
+
+  - name: render template
+    template: src=instance.tpl dest=build/instance.rg
+    tags:
+      - instances
+
+  - name: convert template to JSON
+    shell: yaml2json build/instance.rg | jq -M '.' > build/{{inventory_hostname}}.json
+    tags:
+      - instances
+
+
+  - name: render inventory
+    template: src=inventory.md.tpl dest=docs/{{stack_name | upper}}.md
+    run_once: true
+    tags:
+      inventory
+
+  - name: deploy instances
+    shell:  az group deployment create --name "deployment2-{{inventory_hostname}}" --resource-group "{{resource_group}}" --template-file build/{{inventory_hostname}}.json
+    tags:
+      - instances
+    register: deploy
+    async: 1
+    poll: 0
+    when: "dry_run is not defined and dry_run != 'true'"
+
+  # - debug: msg="{{deploy.rc}}{{deploy.stdout}}{{deploy.stderr}}"
+  #   tags:
+  #     - instances
+

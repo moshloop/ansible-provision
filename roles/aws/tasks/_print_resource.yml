@@ -1,0 +1,5 @@
+      - set_fact: query="instances[?id=='{{item.physical_resource_id}}']"
+      - set_fact: "ec2_instance={{ec2_facts| json_query(query) | first | default({}) }}"
+      - debug:
+          msg: "{{item.logical_resource_id}} ({{item.physical_resource_id}}): {{ec2_instance.public_ip_address | default('')}} {{ec2_instance.private_ip_address}}"
+        when: "ec2_instance.private_ip_address is defined"

@@ -1,0 +1,69 @@
+    - set_fact:
+        vm: None
+        datacenter: "{{datacenter | default(region) }}"
+        cluster: "{{cluster | default(az) }}"
+        template: "{{template | default(ami) }}"
+        vlan: "{{ vlan | default(subnet_name) | default('') }}"
+        vm_attributes: "{{vm_attributes | default(tags) | default({}) }}"
+
+    - name: Finding VM
+      vmware_guest_facts:
+        hostname: "{{hostname}}"
+        username: "{{username}}"
+        password: "{{password}}"
+        datacenter: "{{datacenter}}"
+        folder: "/{{datacenter}}/vm"
+        validate_certs: no
+        name: "{{inventory_hostname}}"
+      delegate_to: localhost
+      failed_when: false
+      register: vm
+
+    - debug: var=vm verbosity=1
+
+    - debug: msg="vm does not exists"
+      when: vm.instance is not defined
+
+    - debug: msg="vm exists"
+      when: vm.instance is defined
+
+    - include_tasks: './_provision.yml'
+      when: vm.instance is not defined
+
+    - name: Waiting for IP
+      vmware_guest_facts:
+          hostname: "{{hostname}}"
+          username: "{{username}}"
+          password: "{{password}}"
+          validate_certs: False
+          datacenter: "{{datacenter}}"
+          uuid: "{{vm.instance.hw_product_uuid}}"
+      delegate_to: localhost
+      register: vm_guest
+      until: "vm_guest.instance.hw_eth0.ipaddresses != None and vm_guest.instance.hw_eth0.ipaddresses[0] != ''"
+      retries: 300
+      delay: 5
+
+    - set_fact:
+        ip: "{{vm_guest.instance.hw_eth0.ipaddresses[0]}}"
+
+    - debug: var=vm_guest.instance verbosity=1
+    - debug: msg="Provisioned  {{inventory_hostname}} -> {{ip}}"
+
+    - vmware_vm_group:
+        hostname: "{{hostname}}"
+        username: "{{username}}"
+        password: "{{password}}"
+        cluster: "{{cluster}}"
+        validate_certs: False
+        uuid: "{{vm.instance.hw_product_uuid}}"
+        groups: "{{vm_groups}}"
+
+    - vmware_guest_custom_attributes:
+        hostname: "{{hostname}}"
+        username: "{{username}}"
+        password: "{{password}}"
+        validate_certs: False
+        uuid: "{{vm.instance.hw_product_uuid}}"
+        state: present
+        attributes: "{{vm_attributes | map_to_entries('name', 'value') }}"

@@ -1,0 +1,10 @@
+
+---
+
+galaxy_info:
+  description: Ansible role to provision resources on AWS
+  company: "Discovery TI"
+  license: "license (Apache)"
+  min_ansible_version: 2.3.2
+
+dependencies: []

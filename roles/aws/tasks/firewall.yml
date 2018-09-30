@@ -1,0 +1,54 @@
+  - name: install fireviz
+    shell: mkdir -p .bin && wget -nv -O ./.bin/fireviz https://github.com/moshloop/fireviz/releases/download/1.3/fireviz && chmod +x ./.bin/fireviz
+    creates: ./.bin/fireviz
+    run_once: true
+    tags:
+      - fw
+
+  - name: render security groups
+    shell: " mkdir -p build && ./.bin/fireviz export firewall/*.gv --cloudformation --vpc {{vpc}} --mapping firewall/mapping.yml --map Shared_Services={{shared_services}} > build/fw.cf"
+    register: fireviz
+    run_once: true
+    tags:
+      - fw
+
+  - debug: var=fireviz.stderr
+    run_once: true
+    tags:
+      - fw
+
+  - name: Create cloudformation S3 bucket
+    aws_s3:
+      bucket: "{{cf_template_bucket}}"
+      region: "{{region}}"
+      mode: create
+    run_once: true
+    when: "dry_run is not defined"
+    delegate_to: localhost
+    tags:
+      - fw
+
+  - name: upload cloudformation to S3
+    aws_s3:
+      bucket: "{{cf_template_bucket}}"
+      object: "{{timestamp}}-fw.cf"
+      region: "{{region}}"
+      src: build/fw.cf
+      mode: put
+    register: url
+    run_once: true
+    when: "dry_run is not defined"
+    delegate_to: localhost
+    tags:
+      - fw
+
+  - name: deploy security groups
+    run_once: true
+    cloudformation:
+      stack_name: "securitygroups"
+      create_changeset: true
+      state: "present"
+      region: "{{region}}"
+      template_url: "{{url.url}}"
+    tags:
+      - fw

@@ -1,0 +1,98 @@
+  - debug: msg="Looking up AWS details"
+    run_once: true
+
+  - set_fact: cf_template_bucket="cloudformation-templates-{{account_id}}-{{region}}"
+    when: cf_template_bucket is not defined
+    run_once: true
+
+  - ec2_vpc_net_facts:
+      region: "{{region}}"
+      filters:
+        "tag:Name": "{{vpc}}"
+    register: vpc_facts
+    run_once: true
+    when: vpc is defined
+
+  - ec2_vpc_net_facts:
+      region: "{{region}}"
+    register: vpc_facts1
+    run_once: true
+    when:  vpc is not defined
+
+  - name: Setting vpc id
+    run_once: true
+    set_fact:
+      vpc: "{{(vpc_facts.vpcs | default(vpc_facts1.vpcs))[0].id}}"
+
+  - debug:
+      msg: "Using {{vpc}}"
+      verbosity: 1
+    run_once: true
+
+  - set_fact: play_groups="{{play_hosts |  play_groups(groups, hostvars) }}"
+    run_once: true
+
+  - ec2_vpc_subnet_facts:
+      region: "{{region}}"
+      filters:
+        vpc-id: "{{vpc}}"
+    register: all_subnets
+    run_once: true
+
+  - debug: var=all_subnets verbosity=2
+    run_once: true
+
+  - set_fact: all_subnets="{{all_subnets.subnets}}"
+    run_once: true
+
+  - set_fact: zones="{{all_subnets | map(attribute='availability_zone') | unique | list }}"
+    run_once: true
+
+  - set_fact: subnets="{{all_subnets | map(attribute='id') | list }}"
+    run_once: true
+
+  - name: lookup all security groups
+    ec2_group_facts:
+      region: "{{region}}"
+      filters:
+        vpc-id: "{{vpc}}"
+    delegate_to: localhost
+    run_once: true
+    register: sg
+
+  - name: map security groups to name=>id
+    set_fact:
+      sg_groups: "{{sg.security_groups|json_query('[*].{id: group_id, name: group_name}') | to_map( 'name', 'id') }}"
+    run_once: true
+
+  - debug: var=sg_groups verbosity=1
+    run_once: true
+
+  - set_fact:
+      security_group_ids: []
+      security_groups: "{{ security_groups | default([]) }}"
+    run_once: true
+
+  - name: merge security group names
+    set_fact:
+      security_groups: "{{security_groups}} + ['{{role}}-{{purposeId }}']"
+    when: purposeId is defined and role != purposeId
+    run_once: true
+
+  - debug: var=security_groups verbosity=1
+    run_once: true
+
+  - name: lookup security group id by name
+    set_fact:  security_group_ids="{{security_group_ids + [sg_groups.get(item | lower,'')] }}"
+    with_items: "{{security_groups}}"
+    when: sg_groups is defined
+    run_once: true
+
+  - set_fact:
+      security_group_ids: "{{ security_group_ids | reject('equalto', '') | list }}"
+    run_once: true
+
+  - name: lookup subnets
+    set_fact:
+      subnets: "{{all_subnets | find_subnets(subnet_name, az | default('')) |  map(attribute='subnet_id') | list }}"
+    run_once: true

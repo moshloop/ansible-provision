@@ -1,0 +1,8 @@
+  - name: render security groups
+    shell: "fireviz export firewall/*.gv --azure --location {{region}} --name nsg-{{region}} > build/fw.json"
+    register: fireviz
+
+  - debug: var=fireviz
+
+  - name: deploy firewall
+    shell: az group deployment create --name "firewall" --resource-group "{{resource_group}}" --template-file "build/fw.json"
