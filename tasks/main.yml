@@ -1,3 +1,6 @@
+- debug: msg="Provisioning {{stack_name | default('') }} on {{target}}"
+  run_once: true
+
 - file:
     path: build
     state: directory

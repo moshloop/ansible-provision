@@ -7,7 +7,7 @@ users:
 {% if ssh_key_full is defined %}
         - {{ssh_key_full}}
 {% endif %}
-{% if '~/.ssh/id_rsa.pub' | exists %}
+{% if '~/.ssh/id_rsa.pub' is exists %}
         - {{ lookup('file', '~/.ssh/id_rsa.pub') }}
 {% endif %}
 package_update: true

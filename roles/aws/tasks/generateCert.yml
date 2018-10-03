@@ -1,5 +1,6 @@
   - name: checking existing certicates
     run_once: true
+    tags: always
     iam_server_certificate_facts:
       name: "{{default_ssl_certificate}}"
     register: server_cert
@@ -19,12 +20,15 @@
       key: "{{ lookup('file', '/tmp/cert.key') }}"
       cert_chain: "{{ lookup('file', '/tmp/cert') }}"
     register: uploaded_cert
+    failed_when: false
     when:  server_cert.results | length == 0
 
-  - set_fact: default_ssl_arn="{{uploaded_cert.arn}}"
-    run_once: true
-    when:  server_cert.results | length == 0
+  # - set_fact: default_ssl_arn="{{uploaded_cert.arn}}"
+  #   failed_when: false
+  #   run_once: true
+  #   when:  server_cert.results | length == 0
 
-  - set_fact: default_ssl_arn="{{server_cert.results[default_ssl_certificate].arn}}"
-    run_once: true
-    when:  server_cert.results | length >= 1
+  # - set_fact: default_ssl_arn="{{server_cert.results[default_ssl_certificate].arn}}"
+  #   failed_when: false
+  #   run_once: true
+  #   when:  server_cert.results | length >= 1

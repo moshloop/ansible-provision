@@ -6,7 +6,7 @@
       - fw
 
   - name: render security groups
-    shell: " mkdir -p build && ./.bin/fireviz export firewall/*.gv --cloudformation --vpc {{vpc}} --mapping firewall/mapping.yml --map Shared_Services={{shared_services}} > build/fw.cf"
+    shell: " mkdir -p build && ./.bin/fireviz export firewall/*.gv --cloudformation --vpc {{vpc}} --mapping firewall/mapping.yml > build/fw.cf"
     register: fireviz
     run_once: true
     tags:

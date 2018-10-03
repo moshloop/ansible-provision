@@ -1,10 +1,11 @@
 # Getting Started
 
-Opionated role for creating shortcuts for various ansible tasks
+`ansible-provision` is a suite of ansible roles that provide a common interface for provisioning infrastructure onto AWS, vSphere and Azure.
 
+requirements.yml
+```yaml
+```
 ### Folder Structure
-
-
 
 ```yaml
 ├── cloudformation           # applies to AWS only
@@ -25,8 +26,6 @@ Opionated role for creating shortcuts for various ansible tasks
 └── roles
     └── requirements.yml
 ```
-
-
 
 ### Global Configuration
 

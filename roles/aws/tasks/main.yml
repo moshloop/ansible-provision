@@ -45,6 +45,7 @@
 
   - name:  deploy security groups
     import_tasks: firewall.yml
+    when: "'firewall' | dir_exists"
     tags:
       - fw
 
