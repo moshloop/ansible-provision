@@ -1,3 +1,6 @@
 *.retry
+bin/
+build/
+.bin/
 *.pyc
 __pycache__
