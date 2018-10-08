@@ -1,5 +1,5 @@
 ## AWS
-The AWS provisioning lifecycle uses ansible to generate cloudformation - there are some runtime arguments that can be used to reduce the aggressiveness of the Cloudformation replacement rules. 
+The AWS provisioning lifecycle uses ansible to generate cloudformation - there are some [runtime arguments](#runtime-arguments) that can be used to reduce the aggressiveness of the Cloudformation replacement rules.
 
 ![](../images/aws_lifecycle.png)
 
@@ -17,7 +17,7 @@ The AWS provisioning lifecycle uses ansible to generate cloudformation - there a
 
 ### Runtime Arguments
 
-Pass runtime arguments using `-e` e.g. `-e ami_update=true`
+Pass runtime arguments using `-e` e.g. `-e ami_update=true` or save on a per host / group level
 
 | Argument          | Default | Description                                                  |
 | ----------------- | ------- | ------------------------------------------------------------ |
