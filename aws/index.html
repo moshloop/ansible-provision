@@ -480,7 +480,7 @@
                   <h1>AWS</h1>
                 
                 <h2 id="aws">AWS</h2>
-<p>The AWS provisioning lifecycle uses ansible to generate cloudformation - there are some runtime arguments that can be used to reduce the aggressiveness of the Cloudformation replacement rules. </p>
+<p>The AWS provisioning lifecycle uses ansible to generate cloudformation - there are some <a href="#runtime-arguments">runtime arguments</a> that can be used to reduce the aggressiveness of the Cloudformation replacement rules.</p>
 <p><img alt="" src="../images/aws_lifecycle.png" /></p>
 <table>
 <thead>
@@ -529,7 +529,7 @@
 </tbody>
 </table>
 <h3 id="runtime-arguments">Runtime Arguments</h3>
-<p>Pass runtime arguments using <code>-e</code> e.g. <code>-e ami_update=true</code></p>
+<p>Pass runtime arguments using <code>-e</code> e.g. <code>-e ami_update=true</code> or save on a per host / group level</p>
 <table>
 <thead>
 <tr>
