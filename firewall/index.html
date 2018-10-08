@@ -90,6 +90,10 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
+      <a href="../#firewalls" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
@@ -330,6 +334,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     
+      
+    
     
     <a href="./" title="Firewalls" class="md-nav__link md-nav__link--active">
       Firewalls
@@ -441,6 +447,21 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
@@ -449,9 +470,28 @@
                   <a href="https://github.com/moshloop/ansible-provision/edit/master/docs/firewall.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                  <h1>Firewalls</h1>
-                
-                
+                <h1 id="firewalls">Firewalls</h1>
+<p>ansible-provision uses <a href="https://www.github.com/moshloop/fireviz">fireviz</a> to map and create security groups:</p>
+<div class="admonition example">
+<p><strong>firewall.gv</strong>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>digraph G {
+    node[shape=rectangle]
+
+    &quot;Internet&quot; -&gt; &quot;ELB&quot; [xlabel=&quot;80,443&quot;]
+    &quot;ELB&quot; -&gt; &quot;Web&quot; [xlabel=&quot;80,443&quot;]
+    &quot;App&quot; -&gt; &quot;DB&quot; [xlabel=&quot;5432&quot;]
+}
+</pre></div>
+</td></tr></table>
+to generate an image use: <code>dot firewall.gv -Tpng -o firewall.png</code></p>
+<p><img alt="" src="../firewall.png" /></p>
+</div>
                 
                   
                 
