@@ -1,10 +1,18 @@
 # Getting Started
 
-`ansible-provision` is a suite of ansible roles that provide a common interface for provisioning infrastructure onto AWS, vSphere and Azure.
+`ansible-provision` is a suite of ansible roles that provide a common interface for provisioning infrastructure.
+While there is a slant towards AWS services many interfaces support vmware vCenter and Azure.
 
-requirements.yml
-```yaml
-```
+The general worklow is to generate declarative templates (e.g. AWS Cloudformation / Azure Resource Templates) rather than interfacing directly with API's.
+
+cloud-init is used extensively to setup volumes and bootstrap instances for deployment.
+
+## Dependencies
+
+* [ansible-deploy](http://www.moshloop.com/ansible-deploy) which shares many of the same interfaces is used to generate cloudinit config.
+* [systools](https://github.com/moshloop/systools) provides many helpers and bootstraping tools and will be installed by ansible-deploy if it is missing.
+
+
 ### Folder Structure
 
 ```yaml
@@ -26,35 +34,3 @@ requirements.yml
 └── roles
     └── requirements.yml
 ```
-
-### Global Configuration
-
-```yaml
-account_id:
-domain:
-domain_id:
-region:
-security_groups:
-    - default
-    - "{{role}}"
-instance_type: m4.xlarge
-subnet_name:
-instance_role: Server
-ami: base
-ssh_key_name:
-elbs:
-    - group1
-    - group2
-```
-
-| Config                  | Default                                       | Description                                          |
-| ----------------------- | --------------------------------------------- | ---------------------------------------------------- |
-| account_id              |                                               | aws account id                                       |
-| domain         |                                               | domain that is used for internal DNS lookup          |
-| domain_id | |  |
-| region                  |                                               | AWS region                                           |
-| security_groups         | default <br>{{role}} <br>{{role}}-{{purpose}} | A list of security group names to apply              |
-| default_ssl_certificate | self_signed_default                           | name to use for the self signed SSL placeholder      |
-| elbs                    |                                               | a list of groups that include elb's                  |
-
-

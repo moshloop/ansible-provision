@@ -2,7 +2,7 @@
 
 VMWare provisioning is done via the vCenter api's and a cloud-init script that is bundled into an ISO (per VM).
 
-![](../images/aws_lifecycle.png)
+![](../images/vmware_lifecycle.png)
 
 | Config                  | Default                                       | Description                                          |
 | ----------------------- | --------------------------------------------- | ---------------------------------------------------- |
