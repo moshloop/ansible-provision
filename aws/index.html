@@ -90,7 +90,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="../#runtime-arguments" tabindex="1" class="md-skip">
+      <a href="../#aws" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -289,9 +289,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#aws" title="AWS" class="md-nav__link">
+    AWS
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#runtime-arguments" title="Runtime Arguments" class="md-nav__link">
     Runtime Arguments
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -426,9 +439,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#aws" title="AWS" class="md-nav__link">
+    AWS
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#runtime-arguments" title="Runtime Arguments" class="md-nav__link">
     Runtime Arguments
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -453,7 +479,10 @@
                 
                   <h1>AWS</h1>
                 
-                <table>
+                <h2 id="aws">AWS</h2>
+<p>The AWS provisioning lifecycle uses ansible to generate cloudformation - there are some runtime arguments that can be used to reduce the aggressiveness of the Cloudformation replacement rules. </p>
+<p><img alt="" src="../images/aws_lifecycle.png" /></p>
+<table>
 <thead>
 <tr>
 <th>Config</th>
@@ -519,11 +548,6 @@
 <td>userData_update</td>
 <td>false</td>
 <td>Set to false to disable updating the user-data which would normally cause instances to be restarted</td>
-</tr>
-<tr>
-<td>tags_update</td>
-<td>false</td>
-<td></td>
 </tr>
 <tr>
 <td>boot_disk_update</td>
