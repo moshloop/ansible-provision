@@ -339,6 +339,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#lvm" title="LVM" class="md-nav__link">
+    LVM
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#instance-volume" title="Instance Volume" class="md-nav__link">
     Instance Volume
   </a>
@@ -409,10 +416,70 @@
       
 
 
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Ansible Suite
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
+        Ansible Suite
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
   <li class="md-nav__item">
-    <a href="../ansible-addons/" title="Ansible Addons" class="md-nav__link">
-      Ansible Addons
+    <a href="../ansible-addons/" title="ansible-extras" class="md-nav__link">
+      ansible-extras
     </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="https://www.moshloop.com/ansible-run" title="ansible-run" class="md-nav__link">
+      ansible-run
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="https://www.moshloop.com/ansible-deploy" title="ansible-deploy" class="md-nav__link">
+      ansible-deploy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="https://github.com/moshloop/ansible-dependencies" title="ansible-dependencies" class="md-nav__link">
+      ansible-dependencies
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
   </li>
 
     
@@ -439,6 +506,13 @@
         <li class="md-nav__item">
   <a href="#volumes" title="Volumes" class="md-nav__link">
     Volumes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lvm" title="LVM" class="md-nav__link">
+    LVM
   </a>
   
 </li>
@@ -471,7 +545,7 @@
                 
                 <h1 id="storage">Storage</h1>
 <h3 id="volumes">Volumes</h3>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
     <span class="p p-Indicator">-</span> <span class="p p-Indicator">{}</span>
 </pre></div>
@@ -518,8 +592,62 @@
 </tr>
 </tbody>
 </table>
+<h3 id="lvm">LVM</h3>
+<p>LVM volumes are supported are supported:</p>
+<ol>
+<li>To create an physical volume specify <code>format: lvm</code> and the volume name under <code>mount: VolName</code></li>
+<li>Then add another volume with <code>dev: VolName</code></li>
+</ol>
+<div class="admonition example">
+<div class="admonition example"></div>
+<p><strong>Example: create a 200GB volume called VolData, format it with xfs and then mount under /pgdata</strong></p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2
+3</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">201</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">data</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">/dev/xvdf</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">lvm</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">VolData</span><span class="p p-Indicator">}</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">200</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">data-pgdata</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">VolData</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">xfs</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">/pgdata</span><span class="p p-Indicator">}</span>
+</pre></div>
+</td></tr></table>
+
+</div>
+<div class="admonition example">
+<p><strong>Example: Creating 3 LVM volumes for Postgres</strong></p>
+<p><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">201</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">data</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">/dev/xvdf</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">lvm</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">VolData</span><span class="p p-Indicator">}</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">200</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">data-pgdata</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">VolData</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">xfs</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">/pgdata</span><span class="p p-Indicator">}</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">101</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">backups</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">/dev/xvdg</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">lvm</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">VolBackups</span><span class="p p-Indicator">}</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">100</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">backups-data</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">VolBackups</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">xfs</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">/pgbackups</span><span class="p p-Indicator">}</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">51</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">wal</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">/dev/xvdh</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">lvm</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">VolWAL</span><span class="p p-Indicator">}</span>
+  <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">size</span><span class="p p-Indicator">:</span> <span class="nv">50</span><span class="p p-Indicator">,</span> <span class="nv">id</span><span class="p p-Indicator">:</span> <span class="nv">wal-share</span><span class="p p-Indicator">,</span> <span class="nv">dev</span><span class="p p-Indicator">:</span> <span class="nv">VolWAL</span><span class="p p-Indicator">,</span> <span class="nv">format</span><span class="p p-Indicator">:</span> <span class="nv">xfs</span><span class="p p-Indicator">,</span> <span class="nv">mount</span><span class="p p-Indicator">:</span> <span class="nv">/pgwal</span><span class="p p-Indicator">}</span>
+</pre></div>
+</td></tr></table>
+<strong>result:</strong>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+...
+/dev/mapper/VolData-_pgdata        200G   33M  200G   <span class="m">1</span>% /pgdata
+/dev/mapper/VolBackups-_pgbackups  100G   33M  100G   <span class="m">1</span>% /pgbackups
+/dev/mapper/VolWAL-_pgwal           50G   33M   50G   <span class="m">1</span>% /pgwal
+</pre></div>
+</td></tr></table></p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Due to some differences in sizing it is recommended to make LVM logical volumes 1GB smaller than the physical volume</p>
+</div>
 <h3 id="instance-volume">Instance Volume</h3>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">instance_volumes</span><span class="p p-Indicator">:</span>
     <span class="p p-Indicator">-</span> <span class="p p-Indicator">{}</span>
 </pre></div>

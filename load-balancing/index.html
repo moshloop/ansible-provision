@@ -398,10 +398,70 @@
       
 
 
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Ansible Suite
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
+        Ansible Suite
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
   <li class="md-nav__item">
-    <a href="../ansible-addons/" title="Ansible Addons" class="md-nav__link">
-      Ansible Addons
+    <a href="../ansible-addons/" title="ansible-extras" class="md-nav__link">
+      ansible-extras
     </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="https://www.moshloop.com/ansible-run" title="ansible-run" class="md-nav__link">
+      ansible-run
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="https://www.moshloop.com/ansible-deploy" title="ansible-deploy" class="md-nav__link">
+      ansible-deploy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="https://github.com/moshloop/ansible-dependencies" title="ansible-dependencies" class="md-nav__link">
+      ansible-dependencies
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
   </li>
 
     
@@ -452,83 +512,25 @@
                   <h1>Load Balancing</h1>
                 
                 <h3 id="loadbalancers">Loadbalancers</h3>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<p><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">elb</span><span class="p p-Indicator">:</span>
     <span class="p p-Indicator">-</span> <span class="p p-Indicator">{}</span>
 </pre></div>
 </td></tr></table>
-
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>port</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>type</td>
-<td>http</td>
-<td>http,https,tcp</td>
-</tr>
-<tr>
-<td>check</td>
-<td>{port}/</td>
-<td></td>
-</tr>
-<tr>
-<td>alb</td>
-<td>false</td>
-<td>Create a Application Load Balancer instead of classic</td>
-</tr>
-<tr>
-<td>checkPath</td>
-<td>/</td>
-<td>ALB only:</td>
-</tr>
-<tr>
-<td>checkPort</td>
-<td>{port}</td>
-<td>ALB only:</td>
-</tr>
-<tr>
-<td>checkType</td>
-<td>{type}</td>
-<td>ALB only:</td>
-</tr>
-<tr>
-<td>code</td>
-<td>200</td>
-<td>ALB only</td>
-</tr>
-<tr>
-<td>sslId</td>
-<td>{default_ssl_arn}</td>
-<td></td>
-</tr>
-<tr>
-<td>alias</td>
-<td>{group_name}</td>
-<td></td>
-</tr>
-<tr>
-<td>security_group</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>scheme</td>
-<td>internal</td>
-<td></td>
-</tr>
-</tbody>
-</table>
+| Name           | Default           | Description                                           |
+| -------------- | ----------------- | ----------------------------------------------------- |
+| port           |                   |                                                       |
+| type           | http              | http,https,tcp                                        |
+| check          | {port}/           |                                                       |
+| alb            | false             | Create a Application Load Balancer instead of classic |
+| checkPath      | /                 | ALB only:                                             |
+| checkPort      | {port}            | ALB only:                                             |
+| checkType      | {type}            | ALB only:                                             |
+| code           | 200               | ALB only                                              |
+| sslId          | {default_ssl_arn} |                                                       |
+| alias          | {group_name}      |                                                       |
+| security_group |                   |                                                       |
+| scheme         | internal          |                                                       |</p>
                 
                   
                 
