@@ -5,6 +5,8 @@ theme: material
 markdown_extensions:
   - admonition
   - fenced_code
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
   - codehilite:
       linenums: true
 
@@ -20,4 +22,8 @@ nav:
   - Firewalls: ./firewall.md
   - Bootstrapping: ./bootstrapping.md
   - Reference: ./reference.md
-  - Ansible Addons: ./ansible-addons.md
+  - Ansible Suite:
+    - ansible-extras: ./ansible-addons.md
+    - ansible-run: https://www.moshloop.com/ansible-run
+    - ansible-deploy: https://www.moshloop.com/ansible-deploy
+    - ansible-dependencies: https://github.com/moshloop/ansible-dependencies
