@@ -6,7 +6,7 @@ def find_subnets(all_subnets, name, az=''):
     _list = []
 
     for subnet in all_subnets:
-        if subnet['tags']['Name'].startswith(name) and (az == '' or subnet["availability_zone"] == az):
+        if subnet['tags'].get('Name', '').startswith(name) and (az == '' or subnet["availability_zone"] == az):
                 _list.append(subnet)
     return _list
 

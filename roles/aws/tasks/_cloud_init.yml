@@ -1,10 +1,15 @@
-  - name: rendering user-data for {{inventory_hostname}}
-    template: src="cloud-init.tpl" dest="/tmp/{{inventory_hostname}}"
-    delegate_to: localhost
+  - local_action: file path="build/{{inventory_hostname}}/group_vars" state=directory
+
+  - name: saving hostvars
+    local_action: copy content="{{hostvars[inventory_hostname] | to_json}}" dest="build/{{inventory_hostname}}/group_vars/all.json"
+
+  - name: running ansible-deploy to generate cloudinit file
+    local_action: shell ansible-deploy -i {{inventory_dir}} -i build/{{inventory_hostname}} -l {{inventory_hostname}} -e target=cloudinit -c local
 
   - set_fact:
-       userData: "{{lookup('file', '/tmp/' + inventory_hostname) | b64encode }}"
+       userData: "{{lookup('file', inventory_dir + '/build/' + inventory_hostname + '.txt') | b64encode }}"
     delegate_to: localhost
+    tag: always
 
   - block:
         - debug: msg="Looking up existing user data definition to reuse"

@@ -13,7 +13,7 @@ subnets_count: 1
 git_path: /etc/repository
 ssh_key_user: ec2-user
 internal_domain: "{{domain}}"
-boot_disk_size: 50
+boot_disk_size:
 boot_disk_type: gp2
 boot_disk_update: 'false'
 root_domain: "{{domain}}"

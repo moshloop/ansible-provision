@@ -8,9 +8,9 @@ Resources:
         AvailabilityZone: {{hostvars[item].az}}
         ImageId: {{hostvars[item].ami}}
         InstanceType: {{hostvars[item].instance_type}}
-{% if boot_disk_size is defined %}
+{% if not boot_disk_size | is_empty %}
         BlockDeviceMappings:
-          - DeviceName: /dev/sda1
+          - DeviceName: {{ boot_disk_name | default ('/dev/sda1') }}
             Ebs:
               VolumeSize: {{boot_disk_size}}
 {% if boot_disk_type != 'standard' %}
