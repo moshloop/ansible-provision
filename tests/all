@@ -18,4 +18,4 @@ users:
     ssh_keys:
       - "{{ssh_key_full | default('')}}"
       - "{% if '~/.ssh/id_rsa.pub' | exists %}{{ lookup('file', '~/.ssh/id_rsa.pub') }}{% endif %}"
-      - "{{ lookup('pipe', 'ssh-add -L || echo ""') }}"
+      - "{{ lookup('pipe', 'ssh-add -L || true') }}"
