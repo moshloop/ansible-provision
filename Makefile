@@ -7,7 +7,7 @@ docs:
 	twine upload dist/*.tar.gz || echo already exists
 
 ssh-key:
-	mkdir ~/.ssh
+	mkdir -p ~/.ssh
 	ssh-keygen -f ~/.ssh/id_rsa -N ""
 
 setup: ssh-key
