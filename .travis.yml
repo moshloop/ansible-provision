@@ -1,8 +1,11 @@
 language: python
 python:
 - 3.6.5
+env:
+  - job=docs
+  - job=test test=volumes
+  - job=test test=bootstrap
+  - job=test test=instance_volumes
+
 script:
-  - pip install mkdocs mkdocs-material pymdown-extensions Pygments
-  - git remote add docs "https://$GH_TOKEN@github.com/moshloop/ansible-provision.git"
-  - git fetch docs && git fetch docs gh-pages:gh-pages
-  - mkdocs gh-deploy -v --remote-name docs
+  - make $job

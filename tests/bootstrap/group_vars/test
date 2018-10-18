@@ -1,0 +1,8 @@
+env_vars:
+  region: "{{region}}"
+  role: "{{role | lower}}"
+  environment: "{{envFull | default(env)}}"
+  inventory: "{{inventory_dir | basename}}"
+  purpose: "{{purposeId | default(purpose) | default('')}}"
+  groups: "{{group_names | join(',')}}"
+  AWS_REGION: "{{region}}"

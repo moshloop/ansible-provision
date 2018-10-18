@@ -1,0 +1,6 @@
+instance_type: i3.large
+instance_volumes:
+    - {dev: /dev/nvme0n1, mount: /mnt/nvm, format: xfs}
+volumes:
+    - {size: 101, id: data, dev: /dev/xvdf, format: lvm, mount: VolData}
+    - {size: 50, id: data-1, dev: VolData, format: xfs, mount: /mnts/d1}

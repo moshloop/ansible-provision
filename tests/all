@@ -1,0 +1,21 @@
+purposeId: test
+purpose: test
+role: test
+security_groups:
+    - default
+all_tags: {}
+tags:
+    Env: Test
+#instance_role: Server
+bootstrap: false
+ami: RHEL-7.5_HVM_GA-20180322-x86_64-1-Hourly2-GP2
+#amzn2-ami-hvm-2.0.20181008-x86_64-ebs
+packages: []
+instance_type: t2.medium
+target: aws
+users:
+  - name: "{{ssh_key_user | default('ec2-user')}}"
+    ssh_keys:
+      - "{{ssh_key_full | default('')}}"
+      - "{% if '~/.ssh/id_rsa.pub' | exists %}{{ lookup('file', '~/.ssh/id_rsa.pub') }}{% endif %}"
+      - "{{ lookup('pipe', 'ssh-add -L') }}"
