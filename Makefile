@@ -7,8 +7,8 @@ docs:
 
 setup:
 	wget -nv https://github.com/moshloop/ansible-dependencies/releases/download/2.6.5.3/portable-ansible-py3_2.6.5_amd64.deb
-	dpkg -i portable-ansible-py3_2.6.5_amd64.deb
 	pip install aws-cli
+	sudo dpkg -i portable-ansible-py3_2.6.5_amd64.deb
 
 
 test: setup
