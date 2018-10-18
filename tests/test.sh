@@ -21,8 +21,7 @@ test=$1
 shift
 stack=test$(date +"%Y%m%dT%H%M%S")
 echo "Cloudformation stack name: $stack"
-ansible-playbook --version
-cmd="ansible-playbook -i tests/$test play.yml -c local -e stack_name=$stack \
+cmd="ansible-run -i tests/$test play.yml -c local -e stack_name=$stack \
  -e account_id=$(aws sts get-caller-identity | jq -r '.Account') \
  -e region=$AWS_REGION\
  -e target=aws \

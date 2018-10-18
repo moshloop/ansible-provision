@@ -4,9 +4,17 @@ docs:
 	git fetch docs && git fetch docs gh-pages:gh-pages
 	mkdocs gh-deploy -v --remote-name docs
 
+tmp := $(shell mktemp)
 
-setup:
-	pip install awscli ansible-dependencies[all] ansible==2.6.5
+ssh-agent:
+	$(shell eval $(ssh-agent))
+	rm $(tmp)
+	ssh-keygen -f $(tmp) -N ""
+	ssh-add $(tmp)
+
+setup: ssh-agent
+	pip install ansible-run
+
 
 test: setup
 	./tests/test.sh $(test) -v
