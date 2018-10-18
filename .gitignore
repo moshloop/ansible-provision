@@ -4,3 +4,8 @@ build/
 .bin/
 *.pyc
 __pycache__
+site/
+tests/
+docs/
+dist/
+.bin/
