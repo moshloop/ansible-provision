@@ -11,4 +11,5 @@ env:
   - job=test test=instance_volumes
 
 script:
+  - eval "$(ssh-agent -s)"
   - make $job

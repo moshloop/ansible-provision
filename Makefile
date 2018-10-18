@@ -7,7 +7,6 @@ docs:
 tmp := $(shell mktemp)
 
 ssh-agent:
-	$(shell eval $(ssh-agent))
 	rm $(tmp)
 	ssh-keygen -f $(tmp) -N ""
 	ssh-add $(tmp)
