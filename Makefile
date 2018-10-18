@@ -12,4 +12,4 @@ setup:
 
 
 test: setup
-	./tests/test.sh $(TEST) -v
+	./tests/test.sh $(test) -v
