@@ -16,9 +16,9 @@ function is_cloudinit_finished() {
     ssh -o StrictHostKeyChecking=no ec2-user@$IP "ls /var/lib/cloud/instance/boot-finished" 2>&1 > /dev/null
 }
 
-if ! which ansible-deploy; then
-  pip install ansible-deploy
-fi
+
+pip install ansible-deploy==2.5.4
+
 
 
 start=$(date +%s)
