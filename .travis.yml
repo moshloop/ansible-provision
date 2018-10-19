@@ -6,6 +6,7 @@ python:
 - 3.6.5
 env:
   - job=docs
+  - job=package
   - job=test test=volumes
   - job=test test=bootstrap
   - job=test test=instance_volumes
@@ -13,3 +14,26 @@ env:
 script:
   - pip install awscli
   - make $job
+
+
+language: python
+python:
+- 3.6.5
+script:
+  - pip install mkdocs mkdocs-material pymdown-extensions Pygments twine pathspec
+  - git remote add docs "https://$GH_TOKEN@github.com/moshloop/ansible-deploy.git"
+  - git fetch docs && git fetch docs gh-pages:gh-pages
+  - mkdocs gh-deploy -v --remote-name docs
+  - python setup.py sdist
+  - twine upload dist/*.tar.gz || echo already exists
+  - make
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file_glob: true
+  file:
+    - "*.rpm"
+    - "*.deb"
+  skip_cleanup: true
+  on:
+    tags: true

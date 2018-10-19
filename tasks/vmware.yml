@@ -1,1 +1,1 @@
-- include_role: name=vmware
+- include_role: name="{{ role_path }}/roles/vmware"

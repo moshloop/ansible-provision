@@ -12,6 +12,8 @@
 
   - set_fact: template_name="{{templates.vms[0]}}"
 
+  - debug: msg="Using {{templates.vms[0] }}" verbosity=1
+
   - vmware_datastore_facts:
       hostname: "{{hostname}}"
       username: "{{username}}"
@@ -21,6 +23,8 @@
       validate_certs: no
     delegate_to: localhost
     register: datastores
+
+  - debug: var=datastores verbosity=1
 
   - set_fact:
       datastore: "{{datastores.datastores | selectattr('type', 'equalto', 'vsan') | first}}"
