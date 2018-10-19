@@ -13,9 +13,10 @@ ami: RHEL-7.5_HVM_GA-20180322-x86_64-1-Hourly2-GP2
 packages: []
 instance_type: t2.medium
 target: aws
+HOME: "{{ lookup('pipe', 'echo ~') }}"
 users:
   - name: "{{ssh_key_user | default('ec2-user')}}"
     ssh_keys:
       - "{{ssh_key_full | default('')}}"
-      - "{% if '~/.ssh/id_rsa.pub' | exists %}{{ lookup('file', '~/.ssh/id_rsa.pub') }}{% endif %}"
+      - "{% if (HOME + '/.ssh/id_rsa.pub') | exists %}{{ lookup('file', HOME + '/.ssh/id_rsa.pub') }}{% endif %}"
       - "{{ lookup('pipe', 'ssh-add -L || true') }}"
