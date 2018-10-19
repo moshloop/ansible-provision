@@ -16,17 +16,23 @@ function is_cloudinit_finished() {
     ssh -o StrictHostKeyChecking=no ec2-user@$IP "ls /var/lib/cloud/instance/boot-finished" 2>&1 > /dev/null
 }
 
+if [[ ! -e ~/.ssh/.id_rsa ]]; then
+  echo "No SSH found, generating"
+  ssh-keygen -f ~/.ssh/id_rsa -N ""
+fi
 
-pip install ansible-deploy==2.5.4
-
-
+if [[ "$SSH_AUTH_SOCK" == "" ]]; then
+  echo "Starting ssh-agent"
+  eval $(ssh-agent -s)
+  ssh-add ~/.ssh/.id_rsa
+fi
 
 start=$(date +%s)
 test=$1
 shift
 stack=test$(date +"%Y%m%dT%H%M%S")
 echo "Cloudformation stack name: $stack"
-cmd="ansible-run -i tests/$test play.yml -c local -e stack_name=$stack \
+cmd="ansible-playbook -i tests/$test play.yml -c local -e stack_name=$stack \
  -e account_id=$(aws sts get-caller-identity | jq -r '.Account') \
  -e region=$AWS_REGION\
  -e target=aws \
