@@ -24,7 +24,7 @@ if [[ ! -e "$KEY" ]]; then
   ssh-keygen -f $KEY -N ""
 fi
 
-if [[ "$SSH_AUTH_SOCK" == "" ]]; then
+if [[ ! -v SSH_AUTH_SOCK || ! ssh-add -L ]]; then
   echo "Starting ssh-agent"
   eval $(ssh-agent -s)
 fi
@@ -56,10 +56,17 @@ while ! is_cloudinit_finished $IP && [[ $((now - start)) -lt "120" ]] ; do
   sleep 5
   now=$(date +%s)
 done
-
-if [[ -e "tests/$test.rb"  ]] && is_cloudinit_finished $IP; then
+is_cloudinit_finished $IP
+connected="$?"
+if [[ -e "tests/$test.rb"  && $connected ]]; then
   echo "Executing tests/$test.rb"
-  if ! inspec exec tests/$test.rb -t ssh://ec2-user@$IP && [[ "$-" == "i" ]]; then
+  inspec exec tests/$test.rb -t ssh://ec2-user@$IP
+  tests="$?"
+  if ! [[ $tests &&  "$-" == "i" ]]; then
       ssh ec2-user@$IP
   fi
+fi
+
+if [[ ! $connected && ! $tests ]]; then
+  exit 1
 fi
