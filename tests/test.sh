@@ -24,7 +24,9 @@ if [[ ! -e "$KEY" ]]; then
   ssh-keygen -f $KEY -N ""
 fi
 
-if [[ ! -v SSH_AUTH_SOCK || ! ssh-add -L ]]; then
+ssh-add -L
+ssh_agent_started="$?"
+if [[ ! -v SSH_AUTH_SOCK || ! $ssh_agent_started ]]; then
   echo "Starting ssh-agent"
   eval $(ssh-agent -s)
 fi
@@ -62,7 +64,7 @@ if [[ -e "tests/$test.rb"  && $connected ]]; then
   echo "Executing tests/$test.rb"
   inspec exec tests/$test.rb -t ssh://ec2-user@$IP
   tests="$?"
-  if ! [[ $tests &&  "$-" == "i" ]]; then
+  if [[ ! $tests &&  "$-" == "i" ]]; then
       ssh ec2-user@$IP
   fi
 fi
