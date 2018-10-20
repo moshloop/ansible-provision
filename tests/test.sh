@@ -27,13 +27,15 @@ fi
 if [[ "$SSH_AUTH_SOCK" == "" ]]; then
   echo "Starting ssh-agent"
   eval $(ssh-agent -s)
-  ssh-add $KEY
 fi
+
+ssh-add $KEY
+ssh-add -L
 
 start=$(date +%s)
 test=$1
 shift
-stack=test$(date +"%Y%m%dT%H%M%S")
+stack=test-$test-$(date +"%Y%m%dT%H%M%S")
 echo "Cloudformation stack name: $stack"
 cmd="ansible-playbook -i tests/$test play.yml -c local -e stack_name=$stack \
  -e account_id=$(aws sts get-caller-identity | jq -r '.Account') \
