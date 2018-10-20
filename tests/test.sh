@@ -26,7 +26,7 @@ fi
 
 ssh-add -L
 ssh_agent_started="$?"
-if [[ ! -v SSH_AUTH_SOCK || ! $ssh_agent_started ]]; then
+if [[ ! -v SSH_AUTH_SOCK || "$ssh_agent_started" != "0" ]]; then
   echo "Starting ssh-agent"
   eval $(ssh-agent -s)
 fi
@@ -60,15 +60,15 @@ while ! is_cloudinit_finished $IP && [[ $((now - start)) -lt "120" ]] ; do
 done
 is_cloudinit_finished $IP
 connected="$?"
-if [[ -e "tests/$test.rb"  && $connected ]]; then
+if [[ -e "tests/$test.rb"  && "$connected" == "0" ]]; then
   echo "Executing tests/$test.rb"
   inspec exec tests/$test.rb -t ssh://ec2-user@$IP
   tests="$?"
-  if [[ ! $tests &&  "$-" == "i" ]]; then
+  if [[ "$tests" != "0" &&  "$-" == "i" ]]; then
       ssh ec2-user@$IP
   fi
 fi
 
-if [[ ! $connected && ! $tests ]]; then
+if [[ "$connected" != "0" || "$tests" != "0" ]]; then
   exit 1
 fi
