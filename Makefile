@@ -25,7 +25,7 @@ package:
 	mv *.rpm $(NAME).rpm
 
 setup:
-	pip install ansible-run==3.2
+	pip install ansible-run==3.3
 
 test: setup
 	ENTRYPOINT=bash ansible-run ./tests/test.sh $(test) -v
