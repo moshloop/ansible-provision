@@ -9,6 +9,7 @@ __name__ = 'ansible-provision'
 setup(
     name = __name__,
     version = __version__,
+    scripts = ['ansible-provision'],
     install_requires = ['ansible-deploy'],
     packages = [__name__.replace("-", "_")],
     url = 'https://www/github.com/moshloop/ansible-provision',
