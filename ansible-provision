@@ -24,7 +24,6 @@ fi
 
 ARG1=$1
 
-
 checkout_role() {
   DIR=~/.ansible/roles/$1
   if [[ ! -e $DIR ]]; then
@@ -42,8 +41,7 @@ checkout_role() {
   fi
 
   echo "Checking desired version"
-  desired_tag=$( ansible-inventory -i $inventory --list | jq -r '._meta.hostvars | values[] | .ansible_$ROLE_NAME_version' | head -n1)
-
+  desired_tag=$( ansible-inventory -i $inventory --list | jq -r "._meta.hostvars | values[] | .ansible_$ROLE_NAME_version" | head -n1)
 
   pwd=$(pwd)
   cd $DIR
@@ -74,8 +72,7 @@ if [[ "$ARG1" == "install" || "$ARG1" == "update" ]]; then
   exit
 fi
 
-
 link_playbook
 
 ANSIBLE_HASH_BEHAVIOUR=merge
-ansible-playbook .ansible-provision.yml $@
+ansible-playbook .ansible-$ROLE_NAME.yml $@
