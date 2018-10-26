@@ -4,13 +4,14 @@ DIR=~/.ansible/roles/$ROLE_NAME
 GIT_BASE=${GIT_BASE:-https://github.com/moshloop}
 inventory=
 ARGS=
-while getopts ":i:, :h, " opt; do
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "USAGE: ansible-$ROLE_NAME [any ansible-playbook arguments]"
+    echo "Use ansible-$ROLE_NAME install to install the ansible roles only without execution"
+    exit
+fi
+while getopts ":i: " opt; do
   case $opt in
-    h)
-      echo "USAGE: ansible-$ROLE_NAME [any ansible-playbook arguments]"
-      echo "Use ansible-$ROLE_NAME install to install the ansible roles only without execution"
-      exit
-      ;;
     i)
     inventory=$OPTARG
       ;;
@@ -40,19 +41,20 @@ checkout_role() {
     return
   fi
 
-  echo "Checking desired version"
-  desired_tag=$( ansible-inventory -i $inventory --list | jq -r "._meta.hostvars | values[] | .ansible_$ROLE_NAME_version" | head -n1)
+  filter="._meta.hostvars | values[] | .ansible_$1_version"
+  desired_tag=$( ansible-inventory -i $inventory --list | jq -r "$filter" | head -n1)
 
   pwd=$(pwd)
   cd $DIR
   current_tag=$(git describe --tags)
 
-  if [[ "$desired_tag" != "null" && "$desired_tag" != "" && "$desired_tag" != "$current_tag" ]]; then
+  if [[ "$desired_tag" != "null" && "$desired_tag" != "" && "$desired_tag" != "$3current_tag" ]]; then
     echo "Checking out $desired_tag"
     git fetch
     git checkout $desired_tag
   fi
-
+  echo "Using ansible-$1"
+  git log -n1
   cd $pwd
 }
 
