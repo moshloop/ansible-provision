@@ -1,1 +1,1 @@
-- include_role: name=azure
+- include_role: name="{{ role_path }}/roles/azure"

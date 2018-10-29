@@ -59,6 +59,7 @@ checkout_role() {
 }
 
 link_playbook() {
+  echo ln -s $DIR/$ROLE_NAME.yml .ansible-$ROLE_NAME.yml
   ln -s $DIR/$ROLE_NAME.yml .ansible-$ROLE_NAME.yml
   function finish {
     rm .ansible-$ROLE_NAME.yml
@@ -68,7 +69,6 @@ link_playbook() {
 
 checkout_role "deploy"
 checkout_role "provision"
-checkout_role "extras"
 
 if [[ "$ARG1" == "install" || "$ARG1" == "update" ]]; then
   exit

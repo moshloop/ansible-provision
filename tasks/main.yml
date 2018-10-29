@@ -22,6 +22,12 @@
   include_tasks: '{{item}}'
   with_items: "{{hooks | deploy_hooks('before', False, group_names) }}"
 
+
+- add_host:
+    name: "{{inventory_hostname}}"
+    groups: "{{target}},deploy"
+  changed_when: false
+
 - include: vmware.yml
   when: target == 'vmware'
 
