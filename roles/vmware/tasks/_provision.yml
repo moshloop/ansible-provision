@@ -58,8 +58,30 @@
           mount: "{{data_volume_mount | default('/data')}}"
     when: data_volume is defined
 
+  - local_action: file path="build/{{inventory_hostname}}/group_vars" state=directory
+
+  - name: saving hostvars
+    local_action: copy content="{{hostvars[inventory_hostname] | to_json}}" dest="build/{{inventory_hostname}}/group_vars/all.json"
+
+  - name: running ansible-deploy to generate cloudinit file
+    local_action: shell ansible-deploy -i {{inventory_dir}} -i build/{{inventory_hostname}} -l {{inventory_hostname}} -e target=cloudinit -c local
+    register: cloudinit
+    no_log: true
+    failed_when: false
+
+  - set_fact:
+      display1: "{{cloudinit.stdout | debug_obj }}"
+      display2: "{{cloudinit.stderr | debug_obj }}"
+
+  - fail:
+    when: cloudinit.rc != 0
+
+  - set_fact:
+       userData: "{{lookup('file', inventory_dir + '/build/' + inventory_hostname + '.txt') | b64encode }}"
+    delegate_to: localhost
+
   - cloudinit_iso:
-      user: "{{ lookup('template', 'cloud-init.tpl') }}"
+      user: "{{ userData }}"
       meta: |
         local-hostname: "{{inventory_hostname | lower}}"
       dest: /tmp/{{inventory_hostname}}.iso
