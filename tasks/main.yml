@@ -1,7 +1,10 @@
 - debug: msg="Provisioning {{stack_name | default('') }} on {{target}}"
   run_once: true
+  tags:
+    - always
 
-- file:
+- name:
+  file:
     path: build
     state: directory
   delegate_to: localhost
@@ -14,12 +17,16 @@
   vars:
     include_dir: "{{item | dirname }}"
   run_once: true
+  tags:
+    - always
   with_items: "{{hooks | deploy_hooks('before', True, group_names) }}"
 
 - name: Running before hooks
   vars:
     include_dir: "{{item | dirname }}"
   include_tasks: '{{item}}'
+  tags:
+    - always
   with_items: "{{hooks | deploy_hooks('before', False, group_names) }}"
 
 
@@ -27,24 +34,36 @@
     name: "{{inventory_hostname}}"
     groups: "{{target}},deploy"
   changed_when: false
+  tags:
+    - always
 
 - include: vmware.yml
   when: target == 'vmware'
+  tags:
+    - always
 
 - include: aws.yml
   when: target == 'aws'
+  tags:
+    - always
 
 - include: azure.yml
   when: target == 'azure'
+  tags:
+    - always
 
 - name: Running after hooks
   include: '{{item}}'
   vars:
     include_dir: "{{item | dirname }}"
   with_items: "{{hooks | deploy_hooks('after', False, group_names) }}"
+  tags:
+    - always
 
 - name: Running after (run_once) hooks
   vars:
     include_dir: "{{item | dirname }}"
   include: '{{item}}'
   with_items: "{{hooks | deploy_hooks('after', True, group_names) }}"
+  tags:
+    - always
