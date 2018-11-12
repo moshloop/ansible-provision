@@ -25,3 +25,10 @@ excluded_srv_records:
     - bastion
     - virtual
     - ungrouped
+env_vars:
+  region: "{{region | default('')}}"
+  role: "{{role | lower}}"
+  environment: "{{envFull | default(env)}}"
+  inventory: "{{inventory_dir | basename}}"
+  purpose: "{{purposeId | default(purpose) | default('')}}"
+  groups: "{{group_names | join(',')}}"
