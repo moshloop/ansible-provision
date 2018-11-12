@@ -29,7 +29,7 @@
 
 
   - debug:
-      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update}}, userData: {{userData_update}}, boot_disk: {{boot_disk_update}}, tags: {{tags_update}}), old={{ec2_instance.image_id | default('NEW') }}"
+      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update}}, userData: {{userData_update}}, boot_disk: {{boot_disk_update}}, tags: {{tags_update}} }}"
 
   - name: lookup security group id by name
     set_fact:  security_group_ids="{{security_group_ids + [sg_groups.get(item | lower,'')] }}"
