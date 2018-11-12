@@ -8,6 +8,7 @@ now: "{{lookup('pipe', 'date')}}"
 timestamp: "{{lookup('pipe', 'date +\"%Y%m%dT%H%M%S\"')}}"
 stack_name: "{{inventory_file | basename}}"
 default_ssl_certificate: defaul_ssl_cert
+default_ssl_arn:
 cf_template_bucket: "cf-{{region}}-{{account_id}}"
 subnets_count: 1
 git_path: /etc/repository

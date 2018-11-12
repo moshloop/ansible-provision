@@ -64,35 +64,3 @@
     set_fact:
       sg_groups: "{{sg.security_groups|json_query('[*].{id: group_id, name: group_name}') | to_map( 'name', 'id') }}"
     run_once: true
-
-  - debug: var=sg_groups verbosity=1
-    run_once: true
-
-  - set_fact:
-      security_group_ids: []
-      security_groups: "{{ security_groups | default([]) }}"
-    run_once: true
-
-  - name: merge security group names
-    set_fact:
-      security_groups: "{{security_groups}} + ['{{role}}-{{purposeId }}']"
-    when: purposeId is defined and role != purposeId
-    run_once: true
-
-  - debug: var=security_groups verbosity=1
-    run_once: true
-
-  - name: lookup security group id by name
-    set_fact:  security_group_ids="{{security_group_ids + [sg_groups.get(item | lower,'')] }}"
-    with_items: "{{security_groups}}"
-    when: sg_groups is defined
-    run_once: true
-
-  - set_fact:
-      security_group_ids: "{{ security_group_ids | reject('equalto', '') | list }}"
-    run_once: true
-
-  - name: lookup subnets
-    set_fact:
-      subnets: "{{all_subnets | find_subnets(subnet_name, az | default('')) |  map(attribute='subnet_id') | list }}"
-    run_once: true

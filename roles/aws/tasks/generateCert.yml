@@ -1,6 +1,6 @@
   - name: checking existing certicates
     run_once: true
-    tags: always
+    check_mode: no
     iam_server_certificate_facts:
       name: "{{default_ssl_certificate}}"
     register: server_cert

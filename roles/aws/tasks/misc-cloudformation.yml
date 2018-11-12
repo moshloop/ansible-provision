@@ -1,9 +1,11 @@
-  - name: render cloudformation template
+  - name: render cloudformation template for {{item}}
+    check_mode: yes
     template: src="{{item}}" dest="build/{{item | basename}}"
     tags:
       - misc
 
   - name: deploy custom cloudformation
+    check_mode: no
     run_once: true
     cloudformation:
       stack_name: "{{ (item | basename  | splitext)[0] }}"
