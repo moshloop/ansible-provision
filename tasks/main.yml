@@ -32,7 +32,7 @@
 
 - add_host:
     name: "{{inventory_hostname}}"
-    groups: "{{target}},deploy"
+    groups: "{{target}},provision"
   changed_when: false
   tags:
     - always
