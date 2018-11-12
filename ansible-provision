@@ -48,7 +48,7 @@ checkout_role() {
   cd $DIR
   current_tag=$(git describe --tags)
 
-  if [[ "$desired_tag" != "null" && "$desired_tag" != "" && "$desired_tag" != "$3current_tag" ]]; then
+  if [[ "$desired_tag" != "null" && "$desired_tag" != "" && "$desired_tag" != "$current_tag" ]]; then
     echo "Checking out $desired_tag"
     git fetch
     git checkout $desired_tag
@@ -58,15 +58,6 @@ checkout_role() {
   cd $pwd
 }
 
-link_playbook() {
-  echo ln -s $DIR/$ROLE_NAME.yml .ansible-$ROLE_NAME.yml
-  ln -s $DIR/$ROLE_NAME.yml .ansible-$ROLE_NAME.yml
-  function finish {
-    rm .ansible-$ROLE_NAME.yml
-  }
-  trap finish EXIT
-}
-
 checkout_role "deploy"
 checkout_role "provision"
 
@@ -74,7 +65,12 @@ if [[ "$ARG1" == "install" || "$ARG1" == "update" ]]; then
   exit
 fi
 
-link_playbook
+ln -s $DIR/$ROLE_NAME.yml .ansible-$ROLE_NAME.yml
+function finish {
+  rm .ansible-$ROLE_NAME.yml
+}
+trap finish EXIT
+
 
 ANSIBLE_HASH_BEHAVIOUR=merge
 ansible-playbook .ansible-$ROLE_NAME.yml $@
