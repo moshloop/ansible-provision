@@ -1,0 +1,49 @@
+  - debug:
+      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update}}, userData: {{userData_update}}, boot_disk: {{boot_disk_update}}, tags: {{tags_update}} }}"
+
+  - ec2_vol_facts:
+      region: "{{region}}"
+      filters:
+        volume-id: "{{ (ec2_instance.block_device_mapping  | selectattr('device_name', 'equalto', '/dev/sda1') | first).volume_id }}"
+    register: boot_disk
+    when: ec2_instance is defined and (boot_disk_update is defined and boot_disk_update == 'false')
+
+  - debug: var=boot_disk verbosity=1
+    when: boot_disk is defined
+
+  - cloudformation_facts:
+      stack_name: "{{stack_name}}"
+      region: "{{region}}"
+      all_facts: true
+    failed_when: false
+    register: cf_facts
+    check_mode: no
+    run_once: true
+
+  - set_fact:
+      cf_template_existing: "{{cf_facts.ansible_facts.cloudformation[stack_name].stack_template}}"
+    run_once: true
+
+  - set_fact:
+      cf_properties: "{{ (cf_template_existing | from_yaml )['Resources'][inventory_hostname]['Properties']}}"
+  - set_fact:
+      block_device_mapping: "{{ cf_properties.BlockDeviceMappings | default([]) }}"
+
+  - name: Looking up boot disk size to prevent re-creation
+    set_fact:
+      boot_disk_size: "{{ block_device_mapping[0].Ebs.VolumeSize }}"
+      boot_disk_type: "{{ block_device_mapping[0].Ebs.VolumeType }}"
+    when: boot_disk_update is defined and boot_disk_update == 'false' and block_device_mapping | length > 0
+    delegate_to: localhost
+
+  - block:
+        - debug: msg="Looking up existing user data definition to reuse"
+        - ec2_instance_attribute_facts:
+            instance_id: "{{ec2_instance.id}}"
+            attribute: "userData"
+            region: "{{region}}"
+          register: userDataFact
+        - set_fact: userData="{{userDataFact.attributes.UserData.Value}}"
+    when: ec2_instance is defined and (userData_update is defined and userData_update == 'false')
+    delegate_to: localhost
+
