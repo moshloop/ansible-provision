@@ -21,7 +21,7 @@
     run_once: true
 
   - set_fact:
-      cf_template_existing: "{{cf_facts.ansible_facts.cloudformation.get(stack_name, {}).stack_template | default('')}}"
+      cf_template_existing: "{{cf_facts.ansible_facts.cloudformation.get(stack_name, {}).stack_template | default({})}}"
     run_once: true
   - set_fact:
       cf_template_existing: "{{ cf_template_existing | regex_replace('!\\w+', '') | from_yaml}}"
