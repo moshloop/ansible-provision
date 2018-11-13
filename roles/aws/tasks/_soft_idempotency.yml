@@ -30,7 +30,7 @@
   - debug: var=cf_template_existing verbosity=1
 
   - set_fact:
-      cf_properties: "{{ (cf_template_existing | from_yaml)['Resources'].get(inventory_hostname, {})['Properties'] | default({})}}"
+      cf_properties: "{{ (cf_template_existing | from_yaml | default({})).get('Resources', {}).get(inventory_hostname, {})['Properties'] | default({})}}"
 
   - set_fact:
       cf_properties: {}
