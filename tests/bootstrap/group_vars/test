@@ -6,3 +6,5 @@ env_vars:
   purpose: "{{purposeId | default(purpose) | default('')}}"
   groups: "{{group_names | join(',')}}"
   AWS_REGION: "{{region}}"
+commands:
+  - echo 123 > /etc/booted

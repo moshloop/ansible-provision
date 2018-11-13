@@ -3,6 +3,9 @@
 {% set alias = _elb.alias | default(elb_group) %}
 {% set name = "LB" + env +  alias | regex_replace("-", "") %}
 {% set stickiness = _elb.stickiness | default(false) %}
+{{ _elb | debug_obj}}
+{{ groups[elb_group][0] | debug_obj}}
+{{ config.keys() | debug_obj }}
 
   {{name}}:
     Type: "AWS::ElasticLoadBalancing::LoadBalancer"
@@ -12,11 +15,18 @@
       SecurityGroups:
 
 {% if _elb['security_group'] is defined %}
-          - {{config['sg_groups'].get(_elb['security_group'] | lower, 'missing: ' + _elb['security_group'])}}
-{% else %}
+          - {{sg_groups.get(_elb['security_group'] | lower, 'missing: ' + _elb['security_group'])}}
+{% elif config['security_group_ids'] is defined %}
+{{ config | debug_obj}}
 {% for id in config['security_group_ids'] %}
 {% if id != '' %}
           - {{id}}
+{% endif %}
+{% endfor %}
+{% elif config['security_groups'] is defined %}
+{% for id in config['security_groups'] %}
+{% if id != '' %}
+          - {{sg_groups.get(id, 'missing' + id)}}
 {% endif %}
 {% endfor %}
 {% endif %}

@@ -12,6 +12,13 @@
     - always
   run_once: true
 
+- add_host:
+    name: "{{inventory_hostname}}"
+    groups: "{{target}},provision"
+  changed_when: false
+  tags:
+    - always
+
 - name: Running before (run_once) hooks {{hooks}}
   include_tasks: '{{item}}'
   vars:
@@ -28,14 +35,6 @@
   tags:
     - always
   with_items: "{{hooks | deploy_hooks('before', False, group_names) }}"
-
-
-- add_host:
-    name: "{{inventory_hostname}}"
-    groups: "{{target}},provision"
-  changed_when: false
-  tags:
-    - always
 
 - include: vmware.yml
   when: target == 'vmware'

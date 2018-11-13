@@ -23,11 +23,6 @@
     run_once: true
     tags: instances
 
-  - name: Instance lookup
-    include_tasks: _instance_lookups.yml
-    when: "'virtual' not in group_names"
-    tags: instances
-
   - name: deploy misc cloudformation
     include_tasks: 'misc-cloudformation.yml'
     with_fileglob:
@@ -36,10 +31,6 @@
       - misc
 
   - set_fact: deploy_elb=true
-    tags:
-      - elb
-
-  - debug: msg="Deploying elb's"
     tags:
       - elb
 

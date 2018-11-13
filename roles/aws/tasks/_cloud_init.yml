@@ -5,19 +5,9 @@
 
   - name: running ansible-deploy to generate cloudinit file
     local_action: shell ansible-deploy -i {{inventory_dir}} -i build/{{inventory_hostname}} -l {{inventory_hostname}} -e target=cloudinit -c local
+    check_mode: no
 
   - set_fact:
        userData: "{{lookup('file', inventory_dir + '/build/' + inventory_hostname + '.txt') | b64encode }}"
     delegate_to: localhost
     tag: always
-
-  - block:
-        - debug: msg="Looking up existing user data definition to reuse"
-        - ec2_instance_attribute_facts:
-            instance_id: "{{ec2_instance.id}}"
-            attribute: "userData"
-            region: "{{region}}"
-          register: userDataFact
-        - set_fact: userData="{{userDataFact.attributes.UserData.Value}}"
-    when: ec2_instance is defined and (userData_update is defined and userData_update == 'false')
-    delegate_to: localhost

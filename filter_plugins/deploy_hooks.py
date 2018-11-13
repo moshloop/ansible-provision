@@ -14,7 +14,7 @@ def hooks(hooks, type, run_once, groups):
   suffix = "once.yml" if run_once else "yml"
   hooks.append(cwd)
   display.vv('Listing for: %s -> %s' % (hooks, groups))
-  groups.append('all')
+  groups.insert(0,'all')
 
   files = []
   for hook in hooks:

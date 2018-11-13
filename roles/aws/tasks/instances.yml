@@ -1,15 +1,64 @@
   - debug: var=ec2_facts verbosity=3
 
-  - include_tasks: _ec2.yml
-    when: "'virtual' not in group_names"
+  - name: setting az for "{{inventory_hostname}}"
+    set_fact: az="{{region}}{{inventory_hostname | zone(subnets_count, region) }}"
 
-  - debug: var=hostvars[inventory_hostname] verbosity=2
+  - set_fact: query="instances[?tags.Name=='{{inventory_hostname}}' && state == 'running']"
+
+  - set_fact: "ec2_instances={{ec2_facts| json_query(query) }}"
+
+  - set_fact: "ec2_instance={{ec2_instances[0]}}"
+    when: ec2_instances | length > 0
+
+  - set_fact: ip="{{ ec2_instance['private_ip_address'] | default('') }}"
+    when: ec2_instance is defined
+
+  - debug: var=ec2_instance verbosity=1
+    when: ec2_instance is defined
+
+  - include_tasks: _ami.yml
+
+  - name: set subnet
+    set_fact: subnet="{{all_subnets | find_subnets(subnet_name, az) |  map(attribute='id') | first}}"
+
+  - set_fact:
+      security_group_ids: []
+      security_groups: "{{ security_groups | default([]) }}"
+
+  - name: merge security group names
+    set_fact:
+      security_groups: "{{security_groups}} + ['{{role}}-{{purposeId }}']"
+    when: purposeId is defined and role != purposeId
+
+  - name: lookup security group id by name
+    set_fact:  security_group_ids="{{security_group_ids + [sg_groups.get(item | lower,'')] }}"
+    with_items: "{{security_groups}}"
+    when: sg_groups is defined
+
+  - set_fact:
+      security_group_ids: "{{ security_group_ids | reject('equalto', '') | list }}"
+
+
+  - debug:
+      msg: "{{inventory_hostname}}/{{subnet}}/{{az}}/{{security_groups}}/{{security_group_ids}}"
+
+  - include_tasks: _cloud_init.yml
+    when: ec2_instance is not defined or userData_update is not defined or userData_update == 'true'
+
+  - include_tasks: _soft_idempotency.yml
+
+  - set_fact:
+      tags: "{{all_tags | combine(tags) }}"
+
+
+  - debug: var=hostvars[inventory_hostname] verbosity=1
   - debug: var=play_hosts verbosity=2
 
   - name: Create build directory
     file:
       path: build
       state: directory
+
   - name: render instances, volumes, ELB and DNS
     template: src=instances.cf.tpl dest="build/instances.cf"
     delegate_to: localhost
