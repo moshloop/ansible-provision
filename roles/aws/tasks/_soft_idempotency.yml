@@ -23,11 +23,21 @@
   - set_fact:
       cf_template_existing: "{{cf_facts.ansible_facts.cloudformation[stack_name].stack_template}}"
     run_once: true
+  - set_fact:
+      cf_template_existing: "{{ cf_template_existing | regex_replace('!\\w+', '') | from_yaml}}"
+    run_once: true
+
+  - debug: var=cf_template_existing verbosity=1
 
   - set_fact:
-      cf_properties: "{{ (cf_template_existing | from_yaml )['Resources'][inventory_hostname]['Properties']}}"
+      cf_properties: "{{ (cf_template_existing | from_yaml)['Resources'][inventory_hostname]['Properties'] | default({})}}"
+
   - set_fact:
-      block_device_mapping: "{{ cf_properties.BlockDeviceMappings | default([]) }}"
+      cf_properties: {}
+    when: cf_properties is not defined
+
+  - set_fact:
+      block_device_mapping: "{{ cf_properties.get('BlockDeviceMappings', []) }}"
 
   - name: Looking up boot disk size to prevent re-creation
     set_fact:
