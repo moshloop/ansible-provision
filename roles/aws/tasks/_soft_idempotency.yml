@@ -1,5 +1,5 @@
   - debug:
-      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update}}, userData: {{userData_update}}, boot_disk: {{boot_disk_update}}, tags: {{tags_update}} }}"
+      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update}}, userData: {{userData_update}}, boot_disk: {{boot_disk_update}} }}"
 
   - ec2_vol_facts:
       region: "{{region}}"
@@ -10,24 +10,6 @@
 
   - debug: var=boot_disk verbosity=1
     when: boot_disk is defined
-
-  - cloudformation_facts:
-      stack_name: "{{stack_name}}"
-      region: "{{region}}"
-      all_facts: true
-    failed_when: false
-    register: cf_facts
-    check_mode: no
-    run_once: true
-
-  - set_fact:
-      cf_template_existing: "{{cf_facts.ansible_facts.cloudformation.get(stack_name, {}).stack_template | default({})}}"
-    run_once: true
-  - set_fact:
-      cf_template_existing: "{{ cf_template_existing | regex_replace('!\\w+', '') | from_yaml}}"
-    run_once: true
-
-  - debug: var=cf_template_existing verbosity=1
 
   - set_fact:
       cf_properties: "{{ (cf_template_existing | from_yaml | default({})).get('Resources', {}).get(inventory_hostname, {})['Properties'] | default({})}}"
@@ -54,6 +36,10 @@
             region: "{{region}}"
           register: userDataFact
         - set_fact: userData="{{userDataFact.attributes.UserData.Value}}"
-    when: ec2_instance is defined and (userData_update is defined and userData_update == 'false')
+    when: ec2_instance is defined and (userData_update is defined and not userData_update)
     delegate_to: localhost
+
+  - set_fact:
+      cf_properties: {}
+      block_device_mapping: []
 

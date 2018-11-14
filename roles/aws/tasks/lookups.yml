@@ -64,3 +64,23 @@
     set_fact:
       sg_groups: "{{sg.security_groups|json_query('[*].{id: group_id, name: group_name}') | to_map( 'name', 'id') }}"
     run_once: true
+
+  - cloudformation_facts:
+      stack_name: "{{stack_name}}"
+      region: "{{region}}"
+      all_facts: true
+    failed_when: false
+    register: cf_facts
+    check_mode: no
+    run_once: true
+
+  - set_fact:
+      cf_template_existing: "{{cf_facts.ansible_facts.cloudformation.get(stack_name, {}).stack_template | default({})}}"
+    run_once: true
+
+  - set_fact:
+      cf_template_existing: "{{ cf_template_existing | regex_replace('!\\w+', '') | from_yaml}}"
+    run_once: true
+
+  - debug: var=cf_template_existing verbosity=2
+    run_once: true

@@ -1,0 +1,19 @@
+
+  - block:
+    - ec2_ami_find:
+        region: "{{region}}"
+        name: "{{ami}}*"
+        is_public: false
+        no_result_action: fail
+        sort: name
+        sort_order: descending
+        sort_end: 1
+      register: ami_find
+
+    - name: Using {{ami_find.results[0].name}}/{{ami_find.results[0].image_id}}
+      set_fact: ami="{{ami_find.results[0].ami_id}}"
+    when: ec2_instance is not defined or ami_update | is_truthy
+
+  - name: "Skipping ami update reusing {{ec2_instance.image_id}}"
+    set_fact: ami="{{ec2_instance.image_id}}"
+    when: ec2_instance is defined and not ami_update | is_truthy

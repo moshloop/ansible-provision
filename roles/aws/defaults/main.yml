@@ -1,8 +1,7 @@
 create_change_set: true
-boot_disk_update: 'false'
-userData_update: 'false'
-tags_update: 'false'
-ami_update: 'false'
+boot_disk_update: False
+userData_update: False
+ami_update: False
 sslPolicy: ELBSecurityPolicy-2015-05
 now: "{{lookup('pipe', 'date')}}"
 timestamp: "{{lookup('pipe', 'date +\"%Y%m%dT%H%M%S\"')}}"

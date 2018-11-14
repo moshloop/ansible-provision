@@ -16,7 +16,10 @@
   - debug: var=ec2_instance verbosity=1
     when: ec2_instance is defined
 
-  - include_tasks: _ami.yml
+  - debug:
+      msg: "{{inventory_hostname}}|{{ip | default('')}} updates(ami: {{ami_update}}{{ami_update | is_truthy }}, userData: {{userData_update | is_truthy }}, boot_disk: {{boot_disk_update | is_truthy }} }}"
+
+  - include_tasks: _lookup_ami.yml
 
   - name: set subnet
     set_fact: subnet="{{all_subnets | find_subnets(subnet_name, az) |  map(attribute='id') | first}}"
@@ -38,18 +41,16 @@
   - set_fact:
       security_group_ids: "{{ security_group_ids | reject('equalto', '') | list }}"
 
-
   - debug:
       msg: "{{inventory_hostname}}/{{subnet}}/{{az}}/{{security_groups}}/{{security_group_ids}}"
 
   - include_tasks: _cloud_init.yml
-    when: ec2_instance is not defined or userData_update is not defined or userData_update == 'true'
+    when: ec2_instance is not defined or userData_update is not defined or userData_update == 'true' or userData_update == true
 
   - include_tasks: _soft_idempotency.yml
 
   - set_fact:
       tags: "{{all_tags | combine(tags) }}"
-
 
   - debug: var=hostvars[inventory_hostname] verbosity=1
   - debug: var=play_hosts verbosity=2
@@ -58,13 +59,11 @@
     file:
       path: build
       state: directory
+    run_once: true
 
   - name: render instances, volumes, ELB and DNS
     template: src=instances.cf.tpl dest="build/instances.cf"
     delegate_to: localhost
-    run_once: true
-
-  - debug: var=cf_template_bucket verbosity=2
     run_once: true
 
   - name: Create cloudformation S3 bucket
@@ -73,7 +72,6 @@
       region: "{{region}}"
       mode: create
     run_once: true
-    when: "dry_run is not defined"
     delegate_to: localhost
 
   - name: upload cloudformation to S3
@@ -85,7 +83,6 @@
       mode: put
     register: url
     run_once: true
-    when: "dry_run is not defined"
     delegate_to: localhost
 
   - name: deploy stack {{stack_name}}
@@ -96,7 +93,6 @@
       state: "present"
       region: "{{region}}"
       template_url: "{{url.url}}"
-    when: "dry_run is not defined"
     register: out
 
   - debug: var=out
@@ -105,16 +101,17 @@
   - set_fact:
       cf_url: "https://{{region}}.console.aws.amazon.com/cloudformation/home?region={{region}}#/changeset/detail?changeSetId={{out.warnings[1] | regex_search('arn:.*') | regex_replace('/', '%2F') }}"
     when: out.warnings is defined and out.warnings | length >= 3
+    run_once: true
 
   - name: Export Cloudformation change url
     shell: echo "{{cf_url}}" >> urls
+    run_once: true
     when: cf_url is defined
 
   - name: Gather running instances facts
     ec2_remote_facts:
       region: "{{region}}"
     register: ec2_facts
-    when:  dry_run is not defined or dry_run != 'true'
     run_once: true
 
   # - name: print IP's for new instances
