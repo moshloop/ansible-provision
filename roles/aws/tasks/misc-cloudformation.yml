@@ -1,6 +1,6 @@
   - name: render cloudformation template for {{item}}
-    check_mode: yes
     template: src="{{item}}" dest="build/{{item | basename}}"
+    run_once: true
     tags:
       - misc
 
