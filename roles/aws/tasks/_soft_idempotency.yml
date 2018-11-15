@@ -21,10 +21,10 @@
   - set_fact:
       block_device_mapping: "{{ cf_properties.get('BlockDeviceMappings', []) }}"
 
-  - name: Looking up boot disk size to prevent re-creation
+  - name: Reusing boot disk size to prevent re-creation
     set_fact:
       boot_disk_size: "{{ block_device_mapping[0].Ebs.VolumeSize }}"
-      boot_disk_type: "{{ block_device_mapping[0].Ebs.VolumeType }}"
+      boot_disk_type: "{{ block_device_mapping[0].Ebs.VolumeType | default('standard') }}"
     when: boot_disk_update is defined and boot_disk_update == 'false' and block_device_mapping | length > 0
     delegate_to: localhost
 

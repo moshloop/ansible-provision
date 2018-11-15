@@ -2,7 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Resources:
 {% for item in vars['play_hosts'] %}
 {% if 'virtual' not in groups or item not in groups['virtual'] %}
-{{ hostvars[item] | debug_obj }}
   {{ hostvars[item].inventory_hostname }}:
       Type: "AWS::EC2::Instance"
       Properties:

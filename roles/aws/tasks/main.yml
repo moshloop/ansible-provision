@@ -6,22 +6,11 @@
       state: directory
     run_once: true
 
-  - include_tasks: generateCert.yml
-    run_once: true
-    tags:
-      - elb
 
   - name: Global lookups
     import_tasks: lookups.yml
     run_once: true
     tags: always
-
-  - name: Gather running instances facts
-    ec2_remote_facts:
-      region: "{{region}}"
-    register: ec2_facts
-    run_once: true
-    tags: instances
 
   - name: deploy misc cloudformation
     include_tasks: 'misc-cloudformation.yml'
@@ -30,15 +19,31 @@
     tags:
       - misc
 
-  - set_fact: deploy_elb=true
-    tags:
-      - elb
-
   - name:  deploy security groups
     import_tasks: firewall.yml
     when: "'firewall' | dir_exists"
     tags:
       - fw
+
+  - meta: end_play
+    when: skip_instances is defined and skip_instances
+
+  - name: Gather running instances facts
+    ec2_remote_facts:
+      region: "{{region}}"
+    register: ec2_facts
+    run_once: true
+    tags: instances
+
+  - set_fact: deploy_elb=true
+    tags:
+      - elb
+
+
+  - include_tasks: generateCert.yml
+    run_once: true
+    tags:
+      - elb
 
   - name: deploy instances
     import_tasks: instances.yml
