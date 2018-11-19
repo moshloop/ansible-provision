@@ -11,6 +11,12 @@
     run_once: true
     tags: always
 
+  - name:  deploy security groups
+    import_tasks: firewall.yml
+    when: "'firewall' | dir_exists"
+    tags:
+      - fw
+
   - name: deploy misc cloudformation
     include_tasks: 'misc-cloudformation.yml'
     with_fileglob:
@@ -19,13 +25,9 @@
       - misc
 
   - meta: end_play
-    tags: misc
-
-  - name:  deploy security groups
-    import_tasks: firewall.yml
-    when: "'firewall' | dir_exists"
     tags:
-      - fw
+      - misc
+
 
   - name: Gather running instances facts
     ec2_remote_facts:
