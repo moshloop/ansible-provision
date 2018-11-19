@@ -6,7 +6,6 @@
       state: directory
     run_once: true
 
-
   - name: Global lookups
     import_tasks: lookups.yml
     run_once: true
@@ -19,14 +18,14 @@
     tags:
       - misc
 
+  - meta: end_play
+    tags: misc
+
   - name:  deploy security groups
     import_tasks: firewall.yml
     when: "'firewall' | dir_exists"
     tags:
       - fw
-
-  - meta: end_play
-    when: skip_instances is defined and skip_instances
 
   - name: Gather running instances facts
     ec2_remote_facts:

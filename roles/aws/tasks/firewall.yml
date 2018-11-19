@@ -52,3 +52,6 @@
       template_url: "{{url.url}}"
     tags:
       - fw
+
+  - meta: end_play
+    tags: fw
