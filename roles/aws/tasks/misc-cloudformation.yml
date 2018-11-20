@@ -1,17 +1,11 @@
   - name: render cloudformation template for {{item}}
     template: src="{{item}}" dest="build/{{item | basename}}"
-    run_once: true
-    tags:
-      - misc
 
   - name: deploy custom cloudformation
-    check_mode: no
-    run_once: true
     cloudformation:
       stack_name: "{{ (item | basename  | splitext)[0] }}"
-      create_changeset: true
+      create_changeset: "{{create_change_set}}"
       state: "present"
       region: "{{region}}"
       template: "build/{{item | basename}}"
-    tags:
-      - misc
+    when: not ansible_check_mode

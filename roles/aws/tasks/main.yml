@@ -1,5 +1,30 @@
   - set_fact: debug=false
     when: debug is not defined
+  - set_fact: fw=false
+    when: fw is not defined
+  - set_fact: misc=false
+    when: misc is not defined
+  # - name: Set fw trigger
+  #   set_fact: fw=true
+  #   run_once: true
+  #   tags:
+  #     - never
+  #     - fw
+
+  # - name: Set misc trigger
+  #   set_fact: misc=true
+  #   run_once: true
+  #   tags:
+  #     - never
+  #     - misc
+
+  - name: Set elb trigger
+    set_fact: deploy_elb=true
+    tags:
+      - elb
+
+  - debug: msg="misc={{misc}}, fw={{fw}}, elb={{deploy_elb}}"
+    run_once: true
 
   - file:
       path: build
@@ -11,23 +36,27 @@
     run_once: true
     tags: always
 
-  - name:  deploy security groups
-    import_tasks: firewall.yml
-    when: "'firewall' | dir_exists"
-    tags:
-      - fw
+  - block:
+      - debug:
+          msg: "Deploying security groups: {{'firewall' | dir_exists}}"
+      - name:  deploy security groups
+        include_tasks: firewall.yml
+    when: fw
+    run_once: true
 
-  - name: deploy misc cloudformation
-    include_tasks: 'misc-cloudformation.yml'
-    with_fileglob:
-      - "cloudformation/*"
-    tags:
-      - misc
+  - block:
+      - debug:
+          msg: "Deploying cloudformation"
+      - name: deploy {{item}} cloudformation
+        include_tasks: misc-cloudformation.yml
+        with_fileglob:
+          - "cloudformation/*"
+    when: misc
+    run_once: true
+
 
   - meta: end_play
-    tags:
-      - misc
-
+    when: misc or fw
 
   - name: Gather running instances facts
     ec2_remote_facts:
@@ -35,11 +64,6 @@
     register: ec2_facts
     run_once: true
     tags: instances
-
-  - set_fact: deploy_elb=true
-    tags:
-      - elb
-
 
   - include_tasks: generateCert.yml
     run_once: true
