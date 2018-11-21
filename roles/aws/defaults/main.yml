@@ -31,3 +31,8 @@ env_vars:
   inventory: "{{inventory_dir | basename}}"
   purpose: "{{purposeId | default(purpose) | default('')}}"
   groups: "{{group_names | join(',')}}"
+ssh_key_user: ec2-user
+users:
+  - name: ec2-user
+    ssh_keys:
+      - "{{ssh_key_full | default('')}}"
