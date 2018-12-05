@@ -1,4 +1,4 @@
-{% if deploy_elb is defined and 'elbs' in hostvars[groups['all'][0]]  %}
+{% if elb and 'elbs' in hostvars[groups['all'][0]]  %}
 {%    for elb_group in hostvars[groups['all'][0]].elbs  %}
 {%      if elb_group in play_groups  %}
 {%         set elbs = hostvars[groups[elb_group][0]].elb  %}

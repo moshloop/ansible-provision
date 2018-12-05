@@ -4,26 +4,12 @@
     when: fw is not defined
   - set_fact: misc=false
     when: misc is not defined
-  # - name: Set fw trigger
-  #   set_fact: fw=true
-  #   run_once: true
-  #   tags:
-  #     - never
-  #     - fw
+  - set_fact: elb=true
+    when: elb is not defined
+  - set_fact: dns=true
+    when: dns is not defined
 
-  # - name: Set misc trigger
-  #   set_fact: misc=true
-  #   run_once: true
-  #   tags:
-  #     - never
-  #     - misc
-
-  - name: Set elb trigger
-    set_fact: deploy_elb=true
-    tags:
-      - elb
-
-  - debug: msg="misc={{misc}}, fw={{fw}}, elb={{deploy_elb}}"
+  - debug: msg="misc={{misc}}, fw={{fw}}, elb={{elb}}, dns={{dns}}"
     run_once: true
 
   - file:

@@ -61,6 +61,7 @@
 {%  endif %}
 {% endfor %}
 
+{% if dns %}
 {% for record in _elbs  %}
 {%  if loop.index == 1 or record.alias is defined %}
 {%    if record.alias is defined %}
@@ -79,3 +80,4 @@
         HostedZoneId: !GetAtt "{{name}}.CanonicalHostedZoneNameID"
 {% endif %}
 {% endfor %}
+{% endif %}

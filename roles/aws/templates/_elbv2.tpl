@@ -69,6 +69,8 @@
 {% endfor %}
 {% endfor %}
 
+
+{% if dns %}
   DNS{{alias | cf_name }}:
     Type: "AWS::Route53::RecordSet"
     Properties:
@@ -78,3 +80,4 @@
       AliasTarget:
         DNSName: !Join ["", [!GetAtt "{{name}}.DNSName", "."]]
         HostedZoneId: !GetAtt "{{name}}.CanonicalHostedZoneID"
+{% endif %}
