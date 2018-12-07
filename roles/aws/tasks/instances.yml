@@ -45,7 +45,7 @@
       msg: "{{inventory_hostname}}/{{subnet}}/{{az}}/{{security_groups}}/{{security_group_ids}}"
 
   - include_tasks: _cloud_init.yml
-    when: ec2_instance is not defined or userData_update is not defined or userData_update == 'true' or userData_update == true
+    when: ec2_instance is not defined or userData_update | is_truthy
 
   - include_tasks: _soft_idempotency.yml
 
