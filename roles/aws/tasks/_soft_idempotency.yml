@@ -1,31 +1,39 @@
-  - debug:
-      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update}}, userData: {{userData_update}}, boot_disk: {{boot_disk_update}} }}"
+  - set_fact:
+      cf_properties: {}
+      block_device_mapping: []
 
   - ec2_vol_facts:
       region: "{{region}}"
       filters:
         volume-id: "{{ (ec2_instance.block_device_mapping  | selectattr('device_name', 'equalto', '/dev/sda1') | first).volume_id }}"
     register: boot_disk
-    when: ec2_instance is defined and not boot_disk_update | is_truthy
+    check_mode: no
+    when: ec2_instance is defined and not ( boot_disk_update | bool)
 
   - debug: var=boot_disk verbosity=1
     when: boot_disk is defined
 
-  - set_fact:
+  - debug: var=cf_template_existing
+
+  - name: Lookup existing cloudformation template
+    set_fact:
       cf_properties: "{{ (cf_template_existing | from_yaml | default({})).get('Resources', {}).get(inventory_hostname, {})['Properties'] | default({})}}"
 
   - set_fact:
       cf_properties: {}
     when: cf_properties is not defined
 
-  - set_fact:
+  - debug: var=cf_properties
+
+  - name: Saving boot device mappings
+    set_fact:
       block_device_mapping: "{{ cf_properties.get('BlockDeviceMappings', []) }}"
 
   - name: Reusing boot disk size to prevent re-creation
     set_fact:
       boot_disk_size: "{{ block_device_mapping[0].Ebs.VolumeSize }}"
       boot_disk_type: "{{ block_device_mapping[0].Ebs.VolumeType | default('standard') }}"
-    when: not boot_disk_update | is_truthy and block_device_mapping | length > 0
+    when: not boot_disk_update | bool and block_device_mapping | length > 0
     delegate_to: localhost
 
   - block:
@@ -36,11 +44,5 @@
             region: "{{region}}"
           register: userDataFact
         - set_fact: userData="{{userDataFact.attributes.UserData.Value}}"
-    when: ec2_instance is defined and not userData_update | is_truthy
+    when: ec2_instance is defined and not userData_update | bool
     delegate_to: localhost
-
-  # cleanup for next host
-  - set_fact:
-      cf_properties: {}
-      block_device_mapping: []
-

@@ -17,7 +17,7 @@
     when: ec2_instance is defined
 
   - debug:
-      msg: "{{inventory_hostname}}|{{ip | default('')}} updates(ami: {{ami_update}}{{ami_update | is_truthy }}, userData: {{userData_update | is_truthy }}, boot_disk: {{boot_disk_update | is_truthy }} }}"
+      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ec2_instance['id'] | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update | bool}}, userData: {{userData_update | bool}}, boot_disk: {{boot_disk_update | bool}} }}"
 
   - include_tasks: _lookup_ami.yml
 
@@ -65,6 +65,7 @@
     template: src=instances.cf.tpl dest="build/instances.cf"
     delegate_to: localhost
     run_once: true
+    check_mode: no
 
   - name: Create cloudformation S3 bucket
     aws_s3:
