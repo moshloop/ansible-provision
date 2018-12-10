@@ -17,7 +17,7 @@
     when: ec2_instance is defined
 
   - debug:
-      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ec2_instance['id'] | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update | bool}}, userData: {{userData_update | bool}}, boot_disk: {{boot_disk_update | bool}} }}"
+      msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update | bool}}, userData: {{userData_update | bool}}, boot_disk: {{boot_disk_update | bool}} }}"
 
   - include_tasks: _lookup_ami.yml
 
