@@ -42,7 +42,7 @@
     - always
 
 - include: aws.yml
-  when: target == 'aws'
+  when: target == 'aws' or target == 'aws-service-catalog'
   tags:
     - always
 

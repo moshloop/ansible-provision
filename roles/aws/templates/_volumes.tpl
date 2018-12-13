@@ -20,7 +20,11 @@
         Encrypted: True
 {% endif %}
         VolumeType: {{vol.type | default('gp2')}}
+{% if target == 'aws' %}
         AvailabilityZone: {{hostvars[item].az}}
+{% else %}
+        AvailabilityZone: !Ref Zone
+{% endif %}
         Tags:
           - Key: Name
             Value: "{{ hostvars[item].inventory_hostname }}-{{vol.id}}"

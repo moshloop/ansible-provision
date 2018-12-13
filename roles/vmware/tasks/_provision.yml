@@ -90,6 +90,11 @@
     when: not os is defined or os == 'vmware'
 
   - set_fact:
+      cloudinit_type: vmware
+      userData: "{{userData}}"
+    when: os is defined and os == 'ubuntu'
+
+  - set_fact:
       cloudinit_type: coreos
     when: os is defined and os == 'coreos'
 

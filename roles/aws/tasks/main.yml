@@ -9,6 +9,16 @@
   - set_fact: dns=true
     when: dns is not defined
 
+  - set_fact:
+      elb: false
+      dns: false
+      ami_update: true
+      boot_disk_update: true
+      userData_update: true
+      misc: false
+      fw: false
+    when: target == 'aws-service-catalog'
+
   - debug: msg="misc={{misc}}, fw={{fw}}, elb={{elb}}, dns={{dns}}"
     run_once: true
 

@@ -20,6 +20,7 @@
       msg: "{{inventory_hostname}}|{{ip | default('')}}/{{ami}}/{{az}} -> ({{security_groups}}) updates(ami: {{ami_update | bool}}, userData: {{userData_update | bool}}, boot_disk: {{boot_disk_update | bool}} }}"
 
   - include_tasks: _lookup_ami.yml
+    when: target == 'aws'
 
   - name: set subnet
     set_fact: subnet="{{all_subnets | find_subnets(subnet_name, az) |  map(attribute='id') | first}}"
@@ -48,6 +49,7 @@
     when: ec2_instance is not defined or userData_update | is_truthy
 
   - include_tasks: _soft_idempotency.yml
+    when: target == 'aws'
 
   - set_fact:
       tags: "{{all_tags | combine(tags) }}"
@@ -61,8 +63,18 @@
       state: directory
     run_once: true
 
+  - name: Using standard template
+    set_fact:
+      template_name: instances.cf.tpl
+    when: target == 'aws'
+
+  - name: Using service catalog template
+    set_fact:
+      template_name: instance.catalog.tpl
+    when: target == 'aws-service-catalog'
+
   - name: render instances, volumes, ELB and DNS
-    template: src=instances.cf.tpl dest="build/instances.cf"
+    template: src="{{template_name}}" dest="build/instances.cf"
     delegate_to: localhost
     run_once: true
     check_mode: no
@@ -86,6 +98,13 @@
     run_once: true
     delegate_to: localhost
 
+  - name: render catalog
+    template: src="_service_catalog.tpl" dest="build/catalog.cf"
+    delegate_to: localhost
+    run_once: true
+    check_mode: no
+    when: target == 'aws-service-catalog'
+
   - name: deploy stack {{stack_name}}
     run_once: true
     cloudformation:
@@ -95,6 +114,18 @@
       region: "{{region}}"
       template_url: "{{url.url}}"
     register: out
+    when: target == 'aws'
+
+  - name: Create catalog item {{stack_name}}
+    run_once: true
+    cloudformation:
+      stack_name: "catalog-{{stack_name}}"
+      create_changeset: false
+      state: "present"
+      region: "{{region}}"
+      template: build/catalog.cf
+    register: out
+    when: target == 'aws-service-catalog'
 
   - debug: var=out
     run_once: true
