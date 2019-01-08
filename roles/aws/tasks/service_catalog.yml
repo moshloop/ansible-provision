@@ -1,0 +1,29 @@
+
+
+  - name: create portfolio
+    aws_servicecatalog_portfolio:
+      name: "{{service_catalog_portfolio}}"
+      region: "{{region}}"
+      principals: "{{service_catalog_launch_roles}}"
+    register: portfolio
+
+  - set_fact:
+      service_catalog_portfolio_id: "{{portfolio.id}}"
+
+  - name: render catalog
+    template: src="_service_catalog.tpl" dest="build/catalog.cf"
+    delegate_to: localhost
+    run_once: true
+    check_mode: no
+    when: target == 'aws-service-catalog'
+
+  - name: Create catalog item {{stack_name}}
+    run_once: true
+    cloudformation:
+      stack_name: "catalog-{{stack_name}}"
+      create_changeset: false
+      state: "present"
+      region: "{{region}}"
+      template: build/catalog.cf
+    register: out
+    when: target == 'aws-service-catalog'

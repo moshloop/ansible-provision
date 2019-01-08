@@ -24,6 +24,10 @@
 
   - name: set subnet
     set_fact: subnet="{{all_subnets | find_subnets(subnet_name, az) |  map(attribute='id') | first}}"
+    when: target == 'aws'
+  - name: set subnet
+    set_fact: subnet="{{subnet_name}}"
+    when: target == 'aws-service-catalog'
 
   - set_fact:
       security_group_ids: []
@@ -52,7 +56,7 @@
     when: target == 'aws'
 
   - set_fact:
-      tags: "{{all_tags | combine(tags) }}"
+      tags: "{{all_tags | default({}) | combine(tags | default({})) }}"
 
   - debug: var=hostvars[inventory_hostname] verbosity=1
   - debug: var=play_hosts verbosity=2
@@ -98,11 +102,7 @@
     run_once: true
     delegate_to: localhost
 
-  - name: render catalog
-    template: src="_service_catalog.tpl" dest="build/catalog.cf"
-    delegate_to: localhost
-    run_once: true
-    check_mode: no
+  - include: service_catalog.yml
     when: target == 'aws-service-catalog'
 
   - name: deploy stack {{stack_name}}
@@ -115,17 +115,6 @@
       template_url: "{{url.url}}"
     register: out
     when: target == 'aws'
-
-  - name: Create catalog item {{stack_name}}
-    run_once: true
-    cloudformation:
-      stack_name: "catalog-{{stack_name}}"
-      create_changeset: false
-      state: "present"
-      region: "{{region}}"
-      template: build/catalog.cf
-    register: out
-    when: target == 'aws-service-catalog'
 
   - debug: var=out
     run_once: true

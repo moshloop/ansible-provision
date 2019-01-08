@@ -20,13 +20,14 @@ Parameters:
 
 
 Resources:
-   AMI:
+  AMI:
       Type: Custom::AMI
       Properties:
+        Region: '{{region}}'
         Filters:
           name: '{{host.ami}}'
         ServiceToken: 'arn:aws:lambda:{{region}}:{{account_id}}:function:cfn-ami-provider'
-   SecurityGroups:
+  SecurityGroups:
       Type: Custom::SecurityGroup
       Properties:
         SecurityGroupNames:
@@ -34,7 +35,7 @@ Resources:
           - {{id}}
 {% endfor %}
         ServiceToken: 'arn:aws:lambda:{{region}}:{{account_id}}:function:cfn-securitygroup-provider'
-   Instance:
+  Instance:
       Type: "AWS::EC2::Instance"
       Properties:
         AvailabilityZone: !Ref Zone

@@ -14,13 +14,3 @@ Resources:
     Properties:
       PortfolioId: {{service_catalog_portfolio_id}}
       ProductId: !Ref Product
-
-
-  LaunchConstraint:
-    DependsOn: Association
-    Type: AWS::ServiceCatalog::LaunchRoleConstraint
-    Properties:
-      Description: {{service_catalog_role | basename}}
-      PortfolioId: {{service_catalog_portfolio_id}}
-      ProductId: !Ref Product
-      RoleArn: {{service_catalog_role}}
