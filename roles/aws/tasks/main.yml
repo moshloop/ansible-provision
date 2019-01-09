@@ -15,6 +15,7 @@
       ami_update: true
       boot_disk_update: true
       userData_update: true
+      subnet: "{{subnet_name}}"
       misc: false
       fw: false
     when: target == 'aws-service-catalog'
@@ -30,7 +31,7 @@
   - name: Global lookups
     import_tasks: lookups.yml
     run_once: true
-    tags: always
+    when: target != 'aws-service-catalog'
 
   - block:
       - debug:
@@ -50,7 +51,6 @@
     when: misc
     run_once: true
 
-
   - meta: end_play
     when: misc or fw
 
@@ -60,6 +60,7 @@
     register: ec2_facts
     run_once: true
     tags: instances
+    when: target != 'aws-service-catalog'
 
   - include_tasks: generateCert.yml
     run_once: true

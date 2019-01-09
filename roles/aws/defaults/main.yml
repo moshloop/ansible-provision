@@ -37,10 +37,6 @@ users:
     ssh_keys:
       - "{{ssh_key_full | default('')}}"
 allowed_instance_types:
-  - m5.large
-  - m4.large
-  - m4.xlarge
-  - m5.xlarge
   - a1.2xlarge
   - a1.4xlarge
   - a1.large
@@ -65,8 +61,12 @@ allowed_instance_types:
   - i3.xlarge
   - m4.2xlarge
   - m4.4xlarge
+  - m4.large
+  - m4.xlarge
   - m5.2xlarge
   - m5.4xlarge
+  - m5.large
+  - m5.xlarge
   - m5a.2xlarge
   - m5a.4xlarge
   - m5a.large

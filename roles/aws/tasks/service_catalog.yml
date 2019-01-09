@@ -15,7 +15,6 @@
     delegate_to: localhost
     run_once: true
     check_mode: no
-    when: target == 'aws-service-catalog'
 
   - name: Create catalog item {{stack_name}}
     run_once: true
@@ -26,4 +25,5 @@
       region: "{{region}}"
       template: build/catalog.cf
     register: out
-    when: target == 'aws-service-catalog'
+
+  - meta: end_play

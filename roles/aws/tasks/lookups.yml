@@ -1,10 +1,6 @@
   - debug: msg="Looking up AWS details"
     run_once: true
 
-  - set_fact: cf_template_bucket="cloudformation-templates-{{account_id}}-{{region}}"
-    when: cf_template_bucket is not defined
-    run_once: true
-
   - ec2_vpc_net_facts:
       region: "{{region}}"
       filters:

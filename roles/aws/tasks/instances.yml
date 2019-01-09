@@ -25,9 +25,6 @@
   - name: set subnet
     set_fact: subnet="{{all_subnets | find_subnets(subnet_name, az) |  map(attribute='id') | first}}"
     when: target == 'aws'
-  - name: set subnet
-    set_fact: subnet="{{subnet_name}}"
-    when: target == 'aws-service-catalog'
 
   - set_fact:
       security_group_ids: []
