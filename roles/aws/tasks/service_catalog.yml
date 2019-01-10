@@ -10,16 +10,38 @@
   - set_fact:
       service_catalog_portfolio_id: "{{portfolio.id}}"
 
+  - set_fact: _stack_name="catalog-{{stack_name}}"
+
+  - debug: var=_stack_name
   - name: render catalog
     template: src="_service_catalog.tpl" dest="build/catalog.cf"
     delegate_to: localhost
     run_once: true
     check_mode: no
 
-  - name: Create catalog item {{stack_name}}
+  - name: Checking existing CF state
+    cloudformation_facts:
+      stack_name: "{{_stack_name}}"
+      region: "{{region}}"
+      all_facts: false
+    failed_when: false
+    register: cf_facts
+    check_mode: no
+    run_once: true
+
+  - debug: var=cf_facts
+
+  - name: Delete existing stack in ROLLBACK_COMPLETE state
+    cloudformation:
+      stack_name: "{{_stack_name}}"
+      state: "absent"
+      region: "{{region}}"
+    when: _stack_name in cf_facts.ansible_facts.cloudformation and cf_facts.ansible_facts.cloudformation[_stack_name].stack_description.stack_status == 'ROLLBACK_COMPLETE'
+
+  - name: Create catalog item {{_stack_name}}
     run_once: true
     cloudformation:
-      stack_name: "catalog-{{stack_name}}"
+      stack_name: "{{_stack_name}}"
       create_changeset: false
       state: "present"
       region: "{{region}}"
