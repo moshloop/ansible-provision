@@ -29,14 +29,12 @@
     check_mode: no
     run_once: true
 
-  - debug: var=cf_facts
-
-  - name: Delete existing stack in ROLLBACK_COMPLETE state
+  - name: Delete existing stack in ROLLBACK_COMPLETE state {{_stack_name}}
     cloudformation:
       stack_name: "{{_stack_name}}"
       state: "absent"
       region: "{{region}}"
-    when: _stack_name in cf_facts.ansible_facts.cloudformation and cf_facts.ansible_facts.cloudformation[_stack_name].stack_description.stack_status == 'ROLLBACK_COMPLETE'
+    when: _stack_name.startswith("catalog-") and _stack_name in cf_facts.ansible_facts.cloudformation and cf_facts.ansible_facts.cloudformation[_stack_name].stack_description.stack_status == 'ROLLBACK_COMPLETE'
 
   - name: Create catalog item {{_stack_name}}
     run_once: true
