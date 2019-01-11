@@ -71,7 +71,8 @@ def main():
         portfolio = catalog.create_portfolio(DisplayName=name,ProviderName=provider)['PortfolioDetail']['Id']
 
     for principal in catalog.list_principals_for_portfolio(PortfolioId=portfolio)['Principals']:
-        principals.remove(principal['PrincipalARN'])
+        if principal['PrincipalARN'] in principals:
+            principals.remove(principal['PrincipalARN'])
 
     for principal in principals:
         sys.stderr.write("Associating %s with portfolio: %s" % (principal, name))
