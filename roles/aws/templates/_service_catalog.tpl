@@ -14,3 +14,11 @@ Resources:
     Properties:
       PortfolioId: {{service_catalog_portfolio_id}}
       ProductId: !Ref Product
+
+
+  LaunchRole:
+    Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
+    Properties:
+      PortfolioId: {{service_catalog_portfolio_id}}
+      ProductId:  !Ref Product
+      RoleArn: arn:aws:iam::{{account_id}}:{{service_catalog_runas_role}}
