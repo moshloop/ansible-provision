@@ -21,4 +21,4 @@ Resources:
     Properties:
       PortfolioId: {{service_catalog_portfolio_id}}
       ProductId:  !Ref Product
-      RoleArn: arn:aws:iam::{{account_id}}:{{service_catalog_runas_role}}
+      RoleArn: arn:aws:iam::{{account_id}}:role/{{service_catalog_runas_role}}
