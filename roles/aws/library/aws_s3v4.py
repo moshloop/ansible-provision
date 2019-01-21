@@ -652,6 +652,7 @@ def get_s3_connection(module, aws_connect_kwargs, location, rgw, s3_url, sig_4=T
                       use_ssl=fakes3.scheme == 'fakes3s', **aws_connect_kwargs)
     else:
         params = dict(module=module, conn_type='client', resource='s3', region=location, endpoint=s3_url, **aws_connect_kwargs)
+        params['config'] = botocore.client.Config(signature_version='s3v4')
         if module.params['mode'] == 'put' and module.params['encryption_mode'] == 'aws:kms':
             params['config'] = botocore.client.Config(signature_version='s3v4')
         elif module.params['mode'] in ('get', 'getstr') and sig_4:
