@@ -663,6 +663,10 @@ def get_s3_connection(module, aws_connect_kwargs, location, rgw, s3_url, sig_4=T
                 params['config'] = params['config'].merge(dualconf)
             else:
                 params['config'] = dualconf
+
+    import sys
+    sys.stderr.write("S3 params: %s \n" % params)
+
     return boto3_conn(**params)
 
 
