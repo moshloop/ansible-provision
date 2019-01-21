@@ -304,6 +304,16 @@ from ansible.module_utils.aws.core import AnsibleAWSModule
 from ansible.module_utils.ec2 import ec2_argument_spec, get_aws_connection_info, boto3_conn
 
 try:
+    from __main__ import display
+except ImportError:
+    from ansible.utils.display import Display
+    display = Display()
+
+
+display.banner("AWS S3v4")
+
+
+try:
     import botocore
 except ImportError:
     pass  # will be detected by imported AnsibleAWSModule
@@ -665,7 +675,7 @@ def get_s3_connection(module, aws_connect_kwargs, location, rgw, s3_url, sig_4=T
                 params['config'] = dualconf
 
     import sys
-    sys.stderr.write("S3 params: %s \n" % params)
+    display.banner("S3 params: %s \n" % params)
 
     return boto3_conn(**params)
 

@@ -88,7 +88,7 @@
     run_once: true
     delegate_to: localhost
 
-  - name: upload cloudformation to S3
+  - name: upload cloudformation to S3 using v4 signature
     aws_s3v4:
       bucket: "{{cf_template_bucket}}"
       object: "{{timestamp}}-{{inventory_file | basename}}.cf"
