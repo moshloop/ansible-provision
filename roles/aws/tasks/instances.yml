@@ -89,7 +89,7 @@
     delegate_to: localhost
 
   - name: upload cloudformation to S3
-    aws_s3:
+    aws_s3v4:
       bucket: "{{cf_template_bucket}}"
       object: "{{timestamp}}-{{inventory_file | basename}}.cf"
       region: "{{region}}"
