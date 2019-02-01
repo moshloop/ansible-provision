@@ -74,6 +74,13 @@
       template_name: instance.catalog.tpl
     when: target == 'aws-service-catalog'
 
+  # we generate and use a random filename as a form of authentication as there are issues with the v4 signatures in ap-northeast
+  - set_fact:
+      random_filename: "{{timestamp}}-{{ timestamp | to_uuid }}-{{inventory_file | basename}}.cf"
+
+  - set_fact:
+      cloudformation_template_url: "https://{{cf_template_bucket}}.s3.amazonaws.com/{{random_filename}}"
+
   - name: render instances, volumes, ELB and DNS
     template: src="{{template_name}}" dest="build/instances.cf"
     delegate_to: localhost
@@ -88,12 +95,9 @@
     run_once: true
     delegate_to: localhost
 
-  # we generate and use a randome filename as a form of authentication as there are issues with the v4 signatures in ap-northeast
-  - set_fact:
-      random_filename: "{{timestamp}}-{{ timestamp | to_uuid }}-{{inventory_file | basename}}.cf"
 
   - name: upload cloudformation to S3 using v4 signature
-    aws_s3v4:
+    aws_s3:
       bucket: "{{cf_template_bucket}}"
       object: "{{random_filename}}"
       region: "{{region}}"
@@ -105,9 +109,6 @@
 
   - include: service_catalog.yml
     when: target == 'aws-service-catalog'
-
-  - set_fact:
-      cloudformation_template_url: "https://{{cf_template_bucket}}.s3.amazonaws.com/{{random_filename}}"
 
   - name: deploy stack {{stack_name}}
     run_once: true

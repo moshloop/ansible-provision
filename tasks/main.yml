@@ -12,6 +12,10 @@
     - always
   run_once: true
 
+- include_vars:
+    file: "{{playbook_dir}}/{{item}}"
+  loop: "{{vaults | default([])}}"
+
 - add_host:
     name: "{{inventory_hostname}}"
     groups: "{{target}},provision"
