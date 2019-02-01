@@ -90,7 +90,7 @@
 
   # we generate and use a randome filename as a form of authentication as there are issues with the v4 signatures in ap-northeast
   - set_fact:
-      random_filename: "{{timestamp}}-{{ ansible_date_time.iso8601_micro | to_uuid }}-{{inventory_file | basename}}.cf"
+      random_filename: "{{timestamp}}-{{ timestamp | to_uuid }}-{{inventory_file | basename}}.cf"
 
   - name: upload cloudformation to S3 using v4 signature
     aws_s3v4:
