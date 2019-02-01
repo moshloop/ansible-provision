@@ -7,7 +7,7 @@ Resources:
       Name: {{stack_name}}
       ProvisioningArtifactParameters:
         - Info:
-            LoadTemplateFromURL: {{url.url}}
+            LoadTemplateFromURL: {{cloudformation_template_url}}
 
   Association:
     Type: "AWS::ServiceCatalog::PortfolioProductAssociation"

@@ -88,19 +88,26 @@
     run_once: true
     delegate_to: localhost
 
+  # we generate and use a randome filename as a form of authentication as there are issues with the v4 signatures in ap-northeast
+  - set_fact:
+      random_filename: "{{timestamp}}-{{ ansible_date_time.iso8601_micro | to_uuid }}-{{inventory_file | basename}}.cf"
+
   - name: upload cloudformation to S3 using v4 signature
     aws_s3v4:
       bucket: "{{cf_template_bucket}}"
-      object: "{{timestamp}}-{{inventory_file | basename}}.cf"
+      object: "{{random_filename}}"
       region: "{{region}}"
+      permission: public-read
       src: build/instances.cf
       mode: put
-    register: url
     run_once: true
     delegate_to: localhost
 
   - include: service_catalog.yml
     when: target == 'aws-service-catalog'
+
+  - set_fact:
+      cloudformation_template_url: "https://{{cf_template_bucket}}.s3.amazonaws.com/{{random_filename}}"
 
   - name: deploy stack {{stack_name}}
     run_once: true
@@ -109,7 +116,7 @@
       create_changeset: "{{create_change_set}}"
       state: "present"
       region: "{{region}}"
-      template_url: "{{url.url}}"
+      template_url: "{{cloudformation_template_url}}"
     register: out
     when: target == 'aws'
 
