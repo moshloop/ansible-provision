@@ -8,15 +8,15 @@
       name: "{{template}}"
       # name_match: last
     delegate_to: localhost
-    register: templates
+    register: vm_templates
 
   - fail:
       msg: "Template not found: {{template}}"
-    when: templates.vms | length == 0
+    when: vm_templates.vms | length == 0
 
-  - set_fact: template_name="{{templates.vms[0]}}"
+  - set_fact: template_name="{{vm_templates.vms[0]}}"
 
-  - debug: msg="Using {{templates.vms[0] }}" verbosity=1
+  - debug: msg="Using {{vm_templates.vms[0] }}" verbosity=1
 
   - vmware_datastore_facts:
       hostname: "{{hostname}}"
@@ -58,7 +58,6 @@
           format: xfs
           owner: root
           dev: VolData
-          format: xfs
           mount: "{{data_volume_mount | default('/data')}}"
     when: data_volume is defined
 
@@ -68,7 +67,7 @@
     local_action: copy content="{{hostvars[inventory_hostname] | to_json}}" dest="build/{{inventory_hostname}}/group_vars/all.json"
 
   - name: running ansible-deploy to generate cloudinit file
-    local_action: shell ansible-deploy -i {{inventory_dir}} -i build/{{inventory_hostname}} -l {{inventory_hostname}} -e target=cloudinit -c local --skip-tags slow,after_hooks
+    local_action: shell ansible-deploy -i {{inventory_dir}} -i build/{{inventory_hostname}} -l {{inventory_hostname}} -e target=cloudinit -c local --skip-tags slow,after_hooks,hooks
     register: cloudinit
     no_log: true
     failed_when: false
@@ -115,6 +114,7 @@
       datastore: "{{datastore.name}}"
       path: "/cloud-init/{{inventory_hostname}}.iso"
       validate_certs: no
+    when: not ansible_check_mode
 
   - set_fact:
       networks:
@@ -152,6 +152,7 @@
         num_cpus: "{{cpu | default(2) }}"
     register: vm
     delegate_to: localhost
+    when: not ansible_check_mode
 
   - debug: var=vm verbosity=2
 
@@ -169,6 +170,7 @@
         iso_path: "[{{datastore.name}}] cloud-init/{{inventory_hostname}}.iso"
     register: vm
     delegate_to: localhost
+    when: not ansible_check_mode
 
   - name: Power On
     vmware_guest2:
@@ -180,3 +182,4 @@
       state: poweredon
     register: vm
     delegate_to: localhost
+    when: not ansible_check_mode

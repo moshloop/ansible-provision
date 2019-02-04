@@ -5,15 +5,17 @@
         template: "{{template | default(ami) }}"
         vlan: "{{ vlan | default(subnet_name) | default('') }}"
         vm_attributes: "{{vm_attributes | default(tags) | default({}) }}"
+        vcenter_login: &vcenter_login
+          hostname: "{{hostname}}"
+          username: "{{username}}"
+          password: "{{password}}"
+          validate_certs: no
 
     - name: Finding VM
       vmware_guest_facts:
-        hostname: "{{hostname}}"
-        username: "{{username}}"
-        password: "{{password}}"
+        <<: *vcenter_login
         datacenter: "{{datacenter}}"
         folder: "/{{datacenter}}/vm"
-        validate_certs: no
         name: "{{inventory_hostname}}"
       delegate_to: localhost
       failed_when: false
@@ -32,10 +34,7 @@
 
     - name: Waiting for IP
       vmware_guest_facts:
-          hostname: "{{hostname}}"
-          username: "{{username}}"
-          password: "{{password}}"
-          validate_certs: False
+          <<: *vcenter_login
           datacenter: "{{datacenter}}"
           uuid: "{{vm.instance.hw_product_uuid}}"
       delegate_to: localhost
