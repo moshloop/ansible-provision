@@ -50,20 +50,25 @@
     - debug: var=vm_guest.instance verbosity=1
     - debug: msg="Provisioned  {{inventory_hostname}} -> {{ip}}"
 
+    - file:
+        path: "{{output_dir}}"
+        state: directory
+      when: output_dir is defined
+
+    - copy:
+        content: "{{vm_guest.instance | combine({'ip': ip }) }}"
+        dest: "{{output_dir}}/{{inventory_hostname}}"
+      when: output_dir is defined
+
     - vmware_vm_group:
-        hostname: "{{hostname}}"
-        username: "{{username}}"
-        password: "{{password}}"
+        <<: *vcenter_login
         cluster: "{{cluster}}"
-        validate_certs: False
         uuid: "{{vm.instance.hw_product_uuid}}"
         groups: "{{vm_groups}}"
+      when: vm_groups is defined
 
     - vmware_guest_custom_attributes:
-        hostname: "{{hostname}}"
-        username: "{{username}}"
-        password: "{{password}}"
-        validate_certs: False
+        <<: *vcenter_login
         uuid: "{{vm.instance.hw_product_uuid}}"
         state: present
         attributes: "{{vm_attributes | map_to_entries('name', 'value') }}"
