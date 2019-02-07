@@ -1,7 +1,10 @@
 #!/bin/bash
+
 ROLE_NAME=provision
 DIR=~/.ansible/roles/$ROLE_NAME
 GIT_BASE=${GIT_BASE:-https://github.com/moshloop}
+DEV_MODE=${DEV_MODE:-false}
+PLAYBOOK=.ansible-$ROLE_NAME.yml
 inventory=
 ARGS=
 
@@ -53,24 +56,52 @@ checkout_role() {
     git fetch
     git checkout $desired_tag
   fi
-  echo "Using ansible-$1"
-  git log -n1
+  echo "Using ansible-${1} $(git log -n1 --oneline)"
   cd $pwd
 }
 
-checkout_role "deploy"
-checkout_role "provision"
+function finish {
+  rm $PLAYBOOK
+}
+
+if [[ ! -e $PLAYBOOK ]]; then
+  ln -s $DIR/$ROLE_NAME.yml $PLAYBOOK
+fi
+
+if [[ "$DEV_MODE" == 'false' ]]; then
+  checkout_role "deploy"
+  checkout_role "provision"
+  trap finish EXIT
+fi
 
 if [[ "$ARG1" == "install" || "$ARG1" == "update" ]]; then
   exit
 fi
 
-ln -s $DIR/$ROLE_NAME.yml .ansible-$ROLE_NAME.yml
-function finish {
-  rm .ansible-$ROLE_NAME.yml
-}
-trap finish EXIT
+# ARGS="$ARGS $@"
 
+if [[ ! -e $inventory/hosts && ! -e $inventory/hosts.ini ]]; then
+  prefix=$1
+  shift
+  group=$1
+  shift
+  echo "No hosts detected using $prefix/$group"
+  echo "[$group]" > $inventory/hosts
+  echo "${prefix}" >> $inventory/hosts
+  # ARGS="$ARGS -i .hosts"
+  delete_hosts() {
+    rm inventory/hosts
+  }
+  trap delete_hosts EXIT
+fi
 
-ANSIBLE_HASH_BEHAVIOUR=merge
-ansible-playbook .ansible-$ROLE_NAME.yml $@
+export ANSIBLE_HASH_BEHAVIOUR=merge
+export DISPLAY_SKIPPED_HOSTS=false
+export DISPLAY_OK_HOSTS=false
+export ANSIBLE_CALLBACK_WHITELIST=dense2
+export ANSIBLE_STDOUT_CALLBACK=dense2
+export ANSIBLE_CALLBACK_PLUGINS=$DIR/callback_plugins
+export ANSIBLE_INVENTORY_IGNORE_REGEX=build/*
+
+echo ansible-playbook $PLAYBOOK $ARGS
+eval ansible-playbook  $ARGS $@ $PLAYBOOK
