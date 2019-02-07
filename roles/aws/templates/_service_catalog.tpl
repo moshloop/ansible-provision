@@ -17,7 +17,8 @@ Resources:
 
 
   LaunchRole:
-    Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
+    Type: AWS::ServiceCatalog::LaunchRoleConstraint
+    DependsOn: Association
     Properties:
       PortfolioId: {{service_catalog_portfolio_id}}
       ProductId:  !Ref Product
