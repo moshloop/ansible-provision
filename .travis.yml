@@ -12,6 +12,7 @@ env:
   - job=test test=instance_volumes
 
 script:
+  - apt-get install -y moreutils
   - pip install awscli
   - make $job
 

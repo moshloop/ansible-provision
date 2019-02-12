@@ -15,7 +15,8 @@ docs:
 
 .PHONY: package
 package:
-	pip install twine
+	pip install twine bash-plus
+	bash-plus ansible-provision | sponge ansible-provision
 	python setup.py sdist
 	twine upload dist/*.tar.gz || echo already exists
 	$(shell rm *.rpm || true)
