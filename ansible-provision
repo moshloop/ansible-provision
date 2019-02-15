@@ -7,6 +7,7 @@
 # ARG_OPTIONAL_SINGLE([cloud-init],[],[Path to cloud-init file to use],[])
 # ARG_OPTIONAL_SINGLE([group],[],[Ansible inventory group name],[])
 # ARG_OPTIONAL_SINGLE([hostname],[],[Hostname to use for instance],[])
+# ARG_OPTIONAL_BOOLEAN([install],[],[Install all ansible roles and then exit],[off])
 # ARG_OPTIONAL_BOOLEAN([dev-mode],[],[skip role pinning],[off])
 # ARG_OPTIONAL_SINGLE([git-base],[],[The git repository base for roles],[https://github.com/moshloop])
 # ARG_HELP([])
@@ -20,25 +21,25 @@ log "Starting"
 
 ROLE_NAME=provision
 DIR=~/.ansible/roles/$ROLE_NAME
-GIT_BASE=$_arg_git_base
-DEV_MODE=$_arg_dev_mode
+GIT_BASE=$git_base
+DEV_MODE=$dev_mode
 PLAYBOOK=.ansible-$ROLE_NAME.yml
-inventory=$_arg_inventory
-group=$_arg_group
-host_prefix=$_arg_host_prefix
+inventory=$inventory
+group=$group
+host_prefix=$host_prefix
 ARGS=
 
 
-if [[ "$_args_cloud_init" != "" ]]; then
-  ARGS+=" -e cloud_init_path=$_args_cloud_init"
+if [[ "$cloud_init" != "" ]]; then
+  ARGS+=" -e cloud_init_path=$cloud_init"
 fi
 
-if [[ "$_args_count" != "" ]]; then
-  ARGS+=" -e instance_count=$_args_count"
+if [[ "$count" != "" ]]; then
+  ARGS+=" -e instance_count=$count"
 fi
 
-if [[ "$_args_template" != "" ]]; then
-  ARGS+=" -e template=$_args_template"
+if [[ "$template" != "" ]]; then
+  ARGS+=" -e template=$template"
 fi
 
 if [[ "$inventory" == "" && -d inventory ]]; then
@@ -87,17 +88,15 @@ if [[ ! -e $PLAYBOOK ]]; then
   ln -s $DIR/$ROLE_NAME.yml $PLAYBOOK
 fi
 
-if [[ "$DEV_MODE" == 'false' ]]; then
+if [[ "$dev_mode" == 'false' ]]; then
   checkout_role "deploy"
   checkout_role "provision"
   trap finish EXIT
 fi
 
-if [[ "$ARG1" == "install" || "$ARG1" == "update" ]]; then
+if [[ "$install" == "on" ]] ; then
   exit
 fi
-
-# ARGS="$ARGS $@"
 
 if [[ ! -e $inventory/hosts && ! -e $inventory/hosts.ini ]]; then
   echo "No hosts detected using $host_prefix/$group"
@@ -113,11 +112,11 @@ export ANSIBLE_HASH_BEHAVIOUR=merge
 export DISPLAY_SKIPPED_HOSTS=false
 export DISPLAY_OK_HOSTS=false
 export ANSIBLE_CALLBACK_WHITELIST=dense2
-export ANSIBLE_STDOUT_CALLBACK=dense2
+export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-dense2}
 export ANSIBLE_CALLBACK_PLUGINS=$DIR/callback_plugins
 export ANSIBLE_INVENTORY_IGNORE_REGEX=build/*
 
-echo ansible-playbook $PLAYBOOK $ARGS
+echo ansible-playbook  $ARGS $@ $PLAYBOOK
 eval ansible-playbook  $ARGS $@ $PLAYBOOK
 
 # ] <-- needed because of Argbash
