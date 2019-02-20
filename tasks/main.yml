@@ -55,6 +55,12 @@
   tags:
     - always
 
+
+- include_role: name="{{ role_path }}/roles/virtualbox"
+  when: target == 'virtualbox'
+  tags:
+    - always
+
 - name: Running after hooks
   include: '{{item}}'
   vars:
