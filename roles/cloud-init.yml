@@ -1,0 +1,42 @@
+  - local_action: file path="build/{{inventory_hostname}}/group_vars" state=directory
+
+  - name: saving hostvars
+    local_action: copy content="{{hostvars[inventory_hostname] | to_json}}" dest="build/{{inventory_hostname}}/group_vars/all.json"
+
+  - name: running ansible-deploy to generate cloudinit file
+    local_action: shell ansible-deploy -i {{inventory_dir}} -i build/{{inventory_hostname}} -l {{inventory_hostname}} -e target=cloudinit -c local --skip-tags slow,after_hooks,hooks
+    register: cloudinit
+    no_log: true
+    failed_when: false
+
+  - set_fact:
+      display1: "{{cloudinit.stdout | debug_obj }}"
+      display2: "{{cloudinit.stderr | debug_obj }}"
+
+  - fail:
+    when: cloudinit.rc != 0
+
+  - set_fact:
+       userData: "{{lookup('file', inventory_dir + '/build/' + inventory_hostname + '.txt') }}"
+    delegate_to: localhost
+
+  - set_fact:
+      cloudinit_type: vmware
+      userData: "{{userData | b64encode }}"
+    when: not os is defined or os == 'vmware'
+
+  - set_fact:
+      cloudinit_type: vmware
+      userData: "{{userData}}"
+    when: os is defined and os == 'ubuntu'
+
+  - set_fact:
+      cloudinit_type: coreos
+    when: os is defined and os == 'coreos'
+
+  - cloudinit_iso:
+      user: "{{ userData }}"
+      type: "{{cloudinit_type}}"
+      meta: |
+        local-hostname: "{{inventory_hostname | lower}}"
+      dest: /tmp/{{inventory_hostname}}.iso

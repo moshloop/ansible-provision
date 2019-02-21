@@ -55,11 +55,28 @@
   tags:
     - always
 
-
 - include_role: name="{{ role_path }}/roles/virtualbox"
   when: target == 'virtualbox'
   tags:
     - always
+
+- include_role: name="{{ role_path }}/roles/vmware-fusion"
+  when: target == 'vmware-fusion'
+  tags:
+    - always
+
+
+- debug: msg="Provisioned  {{inventory_hostname}} -> {{ip}}"
+
+- file:
+    path: "{{output_dir}}"
+    state: directory
+  when: output_dir is defined
+
+- copy:
+    content: "{{vm_facts}}"
+    dest: "{{output_dir}}/{{inventory_hostname}}"
+  when: output_dir is defined
 
 - name: Running after hooks
   include: '{{item}}'

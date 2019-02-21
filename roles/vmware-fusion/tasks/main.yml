@@ -1,0 +1,34 @@
+  - include: ../volumes.yml
+
+  - include: ../cloud-init.yml
+
+  - set_fact:
+      vmx: "{{vm_dir}}/{{inventory_hostname}}.vmx"
+
+  - name: Clone VM
+    shell: vmrun clone '{{template}}' '{{vmx}}' linked -cloneName={{inventory_hostname}}
+    register: clone
+
+  - name: Attach ISO
+    lineinfile:
+      path: "{{vmx}}"
+      regexp: 'sata0:1.fileName ='
+      line: sata0:1.fileName = /tmp/{{inventory_hostname}}.iso
+
+  - name: Power On
+    shell: vmrun start '{{vmx}}'
+
+  - name: Waiting for IP
+    shell: vmrun getGuestIPAddress '{{vmx}}'
+    register: vm_guest
+    failed_when: false
+    until: vm_guest.rc == 0
+    retries: 300
+    delay: 5
+
+  - set_fact:
+      ip: "{{vm_guest.stdout}}"
+      vm_facts:
+        ip: "{{vm_guest.stdout}}"
+
+  - debug: msg="Provisioned {{ip}}"

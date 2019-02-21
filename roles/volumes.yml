@@ -1,0 +1,26 @@
+  - set_fact:
+      root_volumes:
+        - size_gb: "{{boot_disk_size | default(40)}}"
+          type: thin
+          mount: /
+      data_volumes: "{{data_volumes | default([])}}"
+      network: "{{network | default('') }}"
+
+  - set_fact:
+      data_volumes:
+        - size_gb: "{{data_volume}}"
+          type: thin
+          mount: "{{data_volume_mount | default('/data')}}"
+      volumes:
+        - size: "{{data_volume}}"
+          id: VolData
+          dev: /dev/sdb
+          format: lvm
+          mount: VolData
+        - size: "{{(data_volume | int) - 1}}"
+          id: VolGroup-1
+          format: xfs
+          owner: root
+          dev: VolData
+          mount: "{{data_volume_mount | default('/data')}}"
+    when: data_volume is defined
