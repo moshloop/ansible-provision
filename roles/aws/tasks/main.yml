@@ -71,19 +71,3 @@
     import_tasks: instances.yml
     tags:
       - instances
-
-  - debug: var=groups['all']
-    run_once: true
-    tags:
-      - inventory
-
-  - file: path=docs state=directory
-    run_once: true
-    tags:
-      - inventory
-
-  - name: render inventory table
-    template: src=inventory.md.tpl dest=docs/{{stack_name | upper}}.md
-    run_once: true
-    tags:
-      - inventory

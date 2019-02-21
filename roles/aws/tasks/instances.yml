@@ -140,6 +140,7 @@
     register: ec2_facts
     run_once: true
 
+  - set_fact:
   # - name: print IP's for new instances
   #   include_tasks: _print_resource.yml
   #   with_items: "{{out.stack_resources}}"

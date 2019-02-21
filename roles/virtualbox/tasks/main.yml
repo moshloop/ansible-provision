@@ -3,11 +3,11 @@
 
   - name: Clone VM (Linked)
     shell: VBoxManage clonevm {{template}} --register --options link --name {{inventory_hostname}} --snapshot {{snapshot_name}}
-    when: clone_type == 'link'
+    when: clone_type is defined and clone_type == 'link'
 
   - name: Clone VM (Full)
     shell: VBoxManage clonevm {{template}} --register --name {{inventory_hostname}}
-    when: clone_type == '' or clone_type == 'full'
+    when: clone_type is not defined or clone_type == '' or clone_type == 'full'
 
   - name: Configure Host only Network
     shell: VBoxManage modifyvm {{inventory_hostname}} --nic1 hostonly --hostonlyadapter1 {{network | split(':') | last}}

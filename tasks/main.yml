@@ -65,18 +65,17 @@
   tags:
     - always
 
-
 - debug: msg="Provisioned  {{inventory_hostname}} -> {{ip}}"
 
-- file:
-    path: "{{output_dir}}"
-    state: directory
-  when: output_dir is defined
+- block:
+    - file:
+        path: "{{output_dir}}"
+        state: directory
 
-- copy:
-    content: "{{vm_facts}}"
-    dest: "{{output_dir}}/{{inventory_hostname}}"
-  when: output_dir is defined
+    - copy:
+        content: "{{vm_facts}}"
+        dest: "{{output_dir}}/{{inventory_hostname}}"
+  when: output_dir is defined and vm_facts is defined
 
 - name: Running after hooks
   include: '{{item}}'
