@@ -32,6 +32,7 @@ import os.path
 from subprocess import check_call
 from ansible.module_utils.basic import AnsibleModule
 import os, sys
+import uuid
 from tempfile import gettempdir
 
 def log(s):
@@ -61,7 +62,7 @@ def main():
     with open(tmp + path, 'w') as f:
         f.write(module.params['user'])
     with open(tmp + "/meta-data", "w") as f:
-        f.write('instance-id: iid-123456\n')
+        f.write('instance-id: i%s\n' % uuid.uuid1())
 
         if 'meta' in module.params and module.params['meta'] is not None:
             f.write(module.params['meta'])
@@ -69,9 +70,9 @@ def main():
             f.write('local-hostname: cloudy')
 
     if module.params['type'] == 'coreos':
-       check_call("genisoimage -output %s -volid config-2 -joliet -rock ." % module.params['dest'], shell=True,cwd=tmp)
+       check_call("mkisofs -output %s -volid config-2 -joliet -rock ." % module.params['dest'], shell=True,cwd=tmp)
     else:
-        check_call("genisoimage -output %s -volid cidata -joliet -rock user-data meta-data" % module.params['dest'], shell=True,cwd=tmp)
+        check_call("mkisofs -output %s -volid cidata -joliet -rock user-data meta-data" % module.params['dest'], shell=True,cwd=tmp)
 
     module.exit_json(changed=True)
 
