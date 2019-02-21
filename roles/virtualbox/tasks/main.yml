@@ -1,81 +1,17 @@
-  - set_fact:
-      root_volumes:
-        - size_gb: "{{boot_disk_size | default(40)}}"
-          type: thin
-          mount: /
-      data_volumes: "{{data_volumes | default([])}}"
-      network: "{{network | default('') }}"
+  - include: ../volumes.yml
+  - include: ../cloud-init.yml
 
-  - set_fact:
-      data_volumes:
-        - size_gb: "{{data_volume}}"
-          type: thin
-          mount: "{{data_volume_mount | default('/data')}}"
-      volumes:
-        - size: "{{data_volume}}"
-          id: VolData
-          dev: /dev/sdb
-          format: lvm
-          mount: VolData
-        - size: "{{(data_volume | int) - 1}}"
-          id: VolGroup-1
-          format: xfs
-          owner: root
-          dev: VolData
-          mount: "{{data_volume_mount | default('/data')}}"
-    when: data_volume is defined
+  - name: Clone VM (Linked)
+    shell: VBoxManage clonevm {{template}} --register --options link --name {{inventory_hostname}} --snapshot {{snapshot_name}}
+    when: clone_type == 'link'
 
-  - local_action: file path="build/{{inventory_hostname}}/group_vars" state=directory
-
-  - name: saving hostvars
-    local_action: copy content="{{hostvars[inventory_hostname] | to_json}}" dest="build/{{inventory_hostname}}/group_vars/all.json"
-
-  - name: running ansible-deploy to generate cloudinit file
-    local_action: shell ansible-deploy -i {{inventory_dir}} -i build/{{inventory_hostname}} -l {{inventory_hostname}} -e target=cloudinit -c local --skip-tags slow,after_hooks,hooks
-    register: cloudinit
-    no_log: true
-    failed_when: false
-
-  - set_fact:
-      display1: "{{cloudinit.stdout | debug_obj }}"
-      display2: "{{cloudinit.stderr | debug_obj }}"
-
-  - fail:
-    when: cloudinit.rc != 0
-
-  - set_fact:
-       userData: "{{lookup('file', inventory_dir + '/build/' + inventory_hostname + '.txt') }}"
-    delegate_to: localhost
-
-  - set_fact:
-      cloudinit_type: vmware
-      userData: "{{userData | b64encode }}"
-    when: not os is defined or os == 'vmware'
-
-  - set_fact:
-      cloudinit_type: vmware
-      userData: "{{userData}}"
-    when: os is defined and os == 'ubuntu'
-
-  - set_fact:
-      cloudinit_type: coreos
-    when: os is defined and os == 'coreos'
-
-  - cloudinit_iso:
-      user: "{{ userData }}"
-      type: "{{cloudinit_type}}"
-      meta: |
-        local-hostname: "{{inventory_hostname | lower}}"
-      dest: /tmp/{{inventory_hostname}}.iso
-
-  - name: Clone VM
-    shell: VBoxManage clonevm {{template}} --register --options link --name {{inventory_hostname}} --snapshot base3
-
+  - name: Clone VM (Full)
+    shell: VBoxManage clonevm {{template}} --register --name {{inventory_hostname}}
+    when: clone_type == '' or clone_type == 'full'
 
   - name: Configure Host only Network
     shell: VBoxManage modifyvm {{inventory_hostname}} --nic1 hostonly --hostonlyadapter1 {{network | split(':') | last}}
     when: network.startswith('hostonly')
-
 
   - name: Configure NAT Network
     shell: VBoxManage modifyvm {{inventory_hostname}} --nic1 natnetwork --nat-network1 {{network | split (':') | last}} --macaddress1 auto
@@ -83,10 +19,16 @@
 
   - name: Configure Internal Network
     shell: VBoxManage modifyvm {{inventory_hostname}} --nic1 intnet --macaddress1 auto
-    when: network.startswith('natnetwork')
+    when: network.startswith('intnet')
 
   - name: Attach ISO
     shell: VBoxManage storageattach {{inventory_hostname}} --storagectl "IDE" --port 0 --device 0 --type dvddrive --medium /tmp/{{inventory_hostname}}.iso
 
   - name: Power On
     shell: VBoxManage startvm {{inventory_hostname}}
+
+  # have not found a reliable way to get ip address yet
+  - set_fact:
+      ip: ""
+      vm_facts:
+        ip: ""
