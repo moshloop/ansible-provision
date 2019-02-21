@@ -6,9 +6,9 @@
         vlan: "{{ vlan | default(subnet_name) | default('') }}"
         vm_attributes: "{{vm_attributes | default(tags) | default({}) }}"
         vcenter_login: &vcenter_login
-          hostname: "{{hostname}}"
-          username: "{{username}}"
-          password: "{{password}}"
+          hostname: "{{vcenter_hostname}}"
+          username: "{{vcenter_username}}"
+          password: "{{vcenter_password}}"
           validate_certs: no
 
     - name: Finding VM
@@ -46,18 +46,8 @@
     - set_fact:
         ip: "{{vm_guest.instance.hw_eth0.ipaddresses[0]}}"
 
-    - debug: var=vm_guest.instance verbosity=1
-    - debug: msg="Provisioned  {{inventory_hostname}} -> {{ip}}"
-
-    - file:
-        path: "{{output_dir}}"
-        state: directory
-      when: output_dir is defined
-
-    - copy:
-        content: "{{vm_guest.instance | combine({'ip': ip }) }}"
-        dest: "{{output_dir}}/{{inventory_hostname}}"
-      when: output_dir is defined
+    - set_fact:
+        vm_facts: "{{ vm_guest.instance | combine({ip: ip})}}"
 
     - vmware_vm_group:
         <<: *vcenter_login
