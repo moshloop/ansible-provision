@@ -91,6 +91,9 @@ allowed_instance_types:
   - r5d.4xlarge
   - r5d.large
   - r5d.xlarge
+  - t2.small
+  - t2.medium
+  - t2.large
   - t3.2xlarge
   - t3.large
   - t3.medium
