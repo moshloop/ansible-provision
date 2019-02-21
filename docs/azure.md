@@ -1,9 +1,13 @@
+
+
+### Options
+
 | Config                  | Default                                       | Description                                          |
 | ----------------------- | --------------------------------------------- | ---------------------------------------------------- |
-| account_id              |                                               | aws account id                                       |
-| infra_resource_group | | Resource group for the network |
-| resource_group | | Resource group for VM's |
-| region | |  |
+| **account_id**          |                                               | Azure subscription id                     |
+| **infra_resource_group** | | Resource group for the network |
+| **resource_group** | | Resource group for VM's |
+| **region** | |  |
 | vpc_id | |  |
 | az_managed | |  |
 | boot_diag_uri | |  |

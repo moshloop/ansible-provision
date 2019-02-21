@@ -15,12 +15,15 @@ nav:
   - Getting Started: ./index.md
   - Targets:
     - AWS: ./aws.md
+    - AWS Service Catalog: ./aws-service-catalog.md
     - Azure: ./azure.md
     - vmware: ./vmware.md
+    - VMware Fusuion: ./vmware-fusion.md
+    - VirtualBox: ./virtualbox.md
   - Volumes: ./volumes.md
   - Load Balancing: ./load-balancing.md
   - Firewalls: ./firewall.md
-  - Bootstrapping: ./bootstrapping.md
+  - Hooks: ./hooks.md
   - Reference: ./reference.md
   - Ansible Suite:
     - ansible-extras: ./ansible-addons.md
