@@ -1,10 +1,15 @@
+
+  - set_fact:
+      vcenter_login: &vcenter_login
+        hostname: "{{vcenter_hostname}}"
+        username: "{{vcenter_username}}"
+        password: "{{vcenter_password}}"
+        validate_certs: no
+
   - name: Finding latest template for {{template}} in "{{datacenter}}"
     vmware_guest_search:
-      hostname: "{{hostname}}"
-      username: "{{username}}"
-      password: "{{password}}"
+      <<: *vcenter_login
       datacenter: "{{datacenter}}"
-      validate_certs: no
       name: "{{template}}"
       # name_match: last
     delegate_to: localhost
@@ -19,12 +24,9 @@
   - debug: msg="Using {{vm_templates.vms[0] }}" verbosity=1
 
   - vmware_datastore_facts:
-      hostname: "{{hostname}}"
-      username: "{{username}}"
-      password: "{{password}}"
+      <<: *vcenter_login
       datacenter: "{{datacenter}}"
       cluster: "{{cluster}}"
-      validate_certs: no
     delegate_to: localhost
     register: datastores
 
@@ -106,9 +108,9 @@
 
   - name: "Upload cloudinit iso to: {{datacenter}}/{{datastore.name}} via {{hostname}}"
     vsphere_copy:
-      host:  "{{hostname}}"
-      login:  "{{username}}"
-      password: "{{password}}"
+      host:  "{{vcenter_hostname}}"
+      login:  "{{vcenter_username}}"
+      password: "{{vcenter_password}}"
       src: /tmp/{{inventory_hostname}}.iso
       datacenter: "{{datacenter}}"
       datastore: "{{datastore.name}}"
@@ -131,15 +133,11 @@
           start_connected: True
     when: network is defined
 
-  - debug: var=volumes verbosity=1
   - name: Launching {{inventory_hostname}} on {{datacenter}}/{{cluster}} with {{template_name}} {{networks}}
     vmware_guest2:
       debug: True
-      hostname: "{{hostname}}"
-      username: "{{username}}"
-      password: "{{password}}"
+      <<: *vcenter_login
       name: "{{inventory_hostname}}"
-      validate_certs: False
       template: "{{template_name}}"
       datacenter: "{{datacenter}}"
       datastore: "{{datastore.name}}"
@@ -160,10 +158,7 @@
 
   - name: Attach ISO
     vmware_guest2:
-      hostname: "{{hostname}}"
-      username: "{{username}}"
-      password: "{{password}}"
-      validate_certs: False
+      <<: *vcenter_login
       uuid: "{{vm.instance.hw_product_uuid}}"
       cdrom:
         type: iso
@@ -174,10 +169,7 @@
 
   - name: Power On
     vmware_guest2:
-      hostname: "{{hostname}}"
-      username: "{{username}}"
-      password: "{{password}}"
-      validate_certs: False
+      <<: *vcenter_login
       uuid: "{{vm.instance.hw_product_uuid}}"
       state: poweredon
     register: vm
