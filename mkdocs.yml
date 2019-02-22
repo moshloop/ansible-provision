@@ -18,7 +18,7 @@ nav:
     - AWS Service Catalog: ./aws-service-catalog.md
     - Azure: ./azure.md
     - vmware: ./vmware.md
-    - VMware Fusuion: ./vmware-fusion.md
+    - VMware Fusion: ./vmware-fusion.md
     - VirtualBox: ./virtualbox.md
   - Volumes: ./volumes.md
   - Load Balancing: ./load-balancing.md
