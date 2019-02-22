@@ -665,28 +665,28 @@ While there is a slant towards AWS services many interfaces support vmware vCent
 <li>(Optional) <a href="http://www.moshloop.com/ansible-run">ansible-run</a> provides CLI tools for easily running and testing ansible playbooks using ansible-dependencies.</li>
 </ul>
 <h3 id="quickstart-with-virtual-box">Quickstart with Virtual Box</h3>
-<ol>
+<ul>
 <li>
 <p>Install Virtual Box and create a VM named "Ubuntu_Template"</p>
 </li>
 <li>
 <p>Create an inventory file under <code>inventory/group_vars/all.yml</code></p>
 </li>
-</ol>
+</ul>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nt">target</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">virtualbox</span>
 <span class="nt">template</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Ubuntu_Template</span>
 </pre></div>
 </td></tr></table>
 
-<ol>
+<ul>
 <li>
 <p>Install the CLI: <code>pip install ansible-provision</code></p>
 </li>
 <li>
 <p>Provision an instance: <code>ansible-provision --hostname test_instance</code></p>
 </li>
-</ol>
+</ul>
 <h2 id="targets">Targets</h2>
 <table>
 <thead>
