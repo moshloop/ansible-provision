@@ -60,8 +60,6 @@ ansible_deploy_version: 2.9.2
 ansible_provision_version: 4.1
 ```
 
-
-
 ## Sample Folder Structure
 
 ```yaml
