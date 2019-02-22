@@ -36,7 +36,7 @@
     
     
       
-        <title>Firewalls - Ansible provision</title>
+        <title>VirtualBox - Ansible provision</title>
       
     
     
@@ -94,7 +94,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#firewalls" tabindex="1" class="md-skip">
+      <a href="#linked-vs-full-clones" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -119,7 +119,7 @@
               Ansible provision
             </span>
             <span class="md-header-nav__topic">
-              Firewalls
+              VirtualBox
             </span>
           
         </div>
@@ -239,10 +239,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
     
     <label class="md-nav__link" for="nav-2">
       Targets
@@ -318,11 +320,59 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../virtualbox/" title="VirtualBox" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        VirtualBox
+      </label>
+    
+    <a href="./" title="VirtualBox" class="md-nav__link md-nav__link--active">
       VirtualBox
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#linked-vs-full-clones" title="Linked vs Full clones" class="md-nav__link">
+    Linked vs Full clones
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-types" title="Network Types" class="md-nav__link">
+    Network Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" title="Options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -359,20 +409,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-    <a href="./" title="Firewalls" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../firewall/" title="Firewalls" class="md-nav__link">
       Firewalls
     </a>
-    
   </li>
 
     
@@ -486,8 +527,36 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#linked-vs-full-clones" title="Linked vs Full clones" class="md-nav__link">
+    Linked vs Full clones
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-types" title="Network Types" class="md-nav__link">
+    Network Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" title="Options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
   
 </nav>
                   </div>
@@ -499,31 +568,69 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/moshloop/ansible-provision/edit/master/docs/firewall.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/moshloop/ansible-provision/edit/master/docs/virtualbox.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="firewalls">Firewalls</h1>
-<p>ansible-provision uses <a href="https://www.github.com/moshloop/fireviz">fireviz</a> to map and create security groups:</p>
-<div class="admonition example">
-<p><strong>firewall.gv</strong>
+                  <h1>VirtualBox</h1>
+                
+                <h2 id="linked-vs-full-clones">Linked vs Full clones</h2>
+<p>To create a linked clone, first create a base VM and snapshot it and specify:</p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2
-3
-4
-5
-6
-7</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>digraph G {
-    node[shape=rectangle]
-
-    &quot;Internet&quot; -&gt; &quot;ELB&quot; [xlabel=&quot;80,443&quot;]
-    &quot;ELB&quot; -&gt; &quot;Web&quot; [xlabel=&quot;80,443&quot;]
-    &quot;App&quot; -&gt; &quot;DB&quot; [xlabel=&quot;5432&quot;]
-}
+3</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nt">target</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">virtualbox</span>
+<span class="nt">clone_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">link</span>
+<span class="nt">snapshot_name</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">snapshotname</span><span class="p p-Indicator">}</span>
 </pre></div>
 </td></tr></table>
-to generate an image use: <code>dot firewall.gv -Tpng -o firewall.png</code></p>
-<p><img alt="" src="../firewall.png" /></p>
-</div>
+
+<h2 id="network-types">Network Types</h2>
+<p><strong>Nat Network</strong></p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nt">network</span><span class="p">:</span> <span class="s">&quot;natnetwork:NatNetwork</span>
+</pre></div>
+</td></tr></table>
+
+<p><strong>Internal Only</strong></p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nt">network</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">intnet</span>
+</pre></div>
+</td></tr></table>
+
+<p><strong>Host Only</strong></p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nt">network</span><span class="p">:</span> <span class="s">&quot;hostonly:vboxnet0&quot;</span>
+</pre></div>
+</td></tr></table>
+
+<h2 id="options">Options</h2>
+<table>
+<thead>
+<tr>
+<th>Config</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>clone_type</td>
+<td>full</td>
+<td></td>
+</tr>
+<tr>
+<td>snapshot_name</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>network</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>volumes</td>
+<td>Not Supported</td>
+<td></td>
+</tr>
+</tbody>
+</table>
                 
                   
                 
@@ -544,7 +651,7 @@ to generate an image use: <code>dot firewall.gv -Tpng -o firewall.png</code></p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../load-balancing/" title="Load Balancing" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../vmware-fusion/" title="VMware Fusion" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -553,19 +660,19 @@ to generate an image use: <code>dot firewall.gv -Tpng -o firewall.png</code></p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Load Balancing
+                VMware Fusion
               </span>
             </div>
           </a>
         
         
-          <a href="../hooks/" title="Hooks" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../volumes/" title="Volumes" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Hooks
+                Volumes
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
