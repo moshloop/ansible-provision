@@ -23,18 +23,18 @@ While there is a slant towards AWS services many interfaces support vmware vCent
 
 ### Quickstart with Virtual Box
 
-1. Install Virtual Box and create a VM named "Ubuntu_Template"
+* Install Virtual Box and create a VM named "Ubuntu_Template"
 
-2. Create an inventory file under `inventory/group_vars/all.yml`
+* Create an inventory file under `inventory/group_vars/all.yml`
 
    ```yaml
    target: virtualbox
    template: Ubuntu_Template
    ```
 
-3. Install the CLI: `pip install ansible-provision`
+* Install the CLI: `pip install ansible-provision`
 
-4. Provision an instance: `ansible-provision --hostname test_instance`
+* Provision an instance: `ansible-provision --hostname test_instance`
 
 ## Targets
 

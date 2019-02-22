@@ -4,11 +4,10 @@ The AWS provisioning lifecycle uses ansible to generate cloudformation - there a
 ![](../images/aws_lifecycle.png)
 
 
-
 ### Dependencies
 
 1. First setup the environment with AWS access credentials, either via `~/.aws/credentials`, `AWS_ACCESS_KEY` environment variable, or an IAM instance profile.
-2. Create the VPC and subnet infrastracture - either via cloudformation in the `cloudformation` directory or manually. 
+2. Create the VPC and subnet infrastracture - either via cloudformation in the `cloudformation` directory or manually.
 3. Ensure all subnet's have Name tags which are used to lookup subnet-ids based on `subnet_name`
 
 
