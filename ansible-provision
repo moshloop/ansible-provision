@@ -7,6 +7,10 @@
 # ARG_OPTIONAL_SINGLE([cloud-init],[],[Path to cloud-init file to use],[])
 # ARG_OPTIONAL_SINGLE([group],[],[Ansible inventory group name],[])
 # ARG_OPTIONAL_SINGLE([hostname],[],[Hostname to use for instance],[])
+# ARG_OPTIONAL_BOOLEAN([verbose],[v],[Verbosity],[off])
+# ARG_OPTIONAL_SINGLE([host-suffix-format],[],[Date format to append to hostname],[+%Y%m%d%H%M%S])
+# ARG_OPTIONAL_REPEATED([limit],[l],[further limit selected hosts to an additional pattern],[])
+# ARG_OPTIONAL_REPEATED([extra],[e],[set additional variables as key=value or YAML/JSON, if            filename prepend with @],[])
 # ARG_OPTIONAL_BOOLEAN([install],[],[Install all ansible roles and then exit],[off])
 # ARG_OPTIONAL_BOOLEAN([dev-mode],[],[skip role pinning],[off])
 # ARG_OPTIONAL_SINGLE([git-base],[],[The git repository base for roles],[https://github.com/moshloop])
@@ -24,29 +28,30 @@ DIR=~/.ansible/roles/$ROLE_NAME
 GIT_BASE=$git_base
 DEV_MODE=$dev_mode
 PLAYBOOK=.ansible-$ROLE_NAME.yml
-inventory=$inventory
-group=$group
-host_prefix=$host_prefix
 ARGS=
 
+for l in "${limit[@]}"; do
+  ARGS+=" -l $l"
+done
 
-if [[ "$cloud_init" != "" ]]; then
-  ARGS+=" -e cloud_init_path=$cloud_init"
-fi
+for e in "${extra[@]}"; do
+  ARGS+=" -e $e"
+done
 
-if [[ "$count" != "" ]]; then
-  ARGS+=" -e instance_count=$count"
-fi
+[[ "$hostname" != "" && "$host_prefix" != "" ]] && hostname=${host_prefix}${hostname}
+[[ "$hostname" != "" ]] && host_suffix_format=""
+[[ "$hostname" != "" && "$group" == "" ]] && group="all"
+[[ "$hostname" == "" && "$host_prefix" != "" ]] && hostname=${host_prefix}
+[[ "$host_suffix_format" != "" ]] && hostname=${hostname}$(date "$host_suffix_format")
+[[ "$cloud_init" != "" ]] && ARGS+=" -e cloud_init_path=$cloud_init"
+[[ "$hostname" != "" ]]   && ARGS+=" -e hostname=$hostname"
+[[ "$count" != "" ]]      && ARGS+=" -e instance_count=$count"
+[[ "$template" != "" ]]   && ARGS+=" -e template=$template"
+[[ "$inventory" == ""     && -d inventory ]] && inventory="inventory"
+[[ "$verbose" == "on" ]]  && ARGS+=" -v"
 
-if [[ "$template" != "" ]]; then
-  ARGS+=" -e template=$template"
-fi
 
-if [[ "$inventory" == "" && -d inventory ]]; then
-  ARGS+=" -i inventory"
-  inventory="inventory"
-fi
-
+ARGS+=" -i $inventory"
 
 checkout_role() {
   DIR=~/.ansible/roles/$1
@@ -72,11 +77,11 @@ checkout_role() {
   current_tag=$(git describe --tags)
 
   if [[ "$desired_tag" != "null" && "$desired_tag" != "" && "$desired_tag" != "$current_tag" ]]; then
-    echo "Checking out $desired_tag"
+    log "Checking out $desired_tag"
     git fetch
     git checkout $desired_tag
   fi
-  echo "Using ansible-${1} $(git log -n1 --oneline)"
+  log "Using ansible-${1} $(git log -n1 --oneline)"
   cd $pwd
 }
 
@@ -84,9 +89,8 @@ function finish {
   rm $PLAYBOOK
 }
 
-if [[ ! -e $PLAYBOOK ]]; then
-  ln -s $DIR/$ROLE_NAME.yml $PLAYBOOK
-fi
+[[ ! -e $PLAYBOOK ]] && ln -s $DIR/$ROLE_NAME.yml $PLAYBOOK
+
 
 if [[ "$dev_mode" == 'false' ]]; then
   checkout_role "deploy"
@@ -94,14 +98,13 @@ if [[ "$dev_mode" == 'false' ]]; then
   trap finish EXIT
 fi
 
-if [[ "$install" == "on" ]] ; then
-  exit
-fi
+[[ "$install" == "on" ]] && exit
+
 
 if [[ ! -e $inventory/hosts && ! -e $inventory/hosts.ini ]]; then
-  echo "No hosts detected using $host_prefix/$group"
+  log "No hosts detected using $hostname/$group"
   echo "[$group]" > $inventory/hosts
-  echo "${host_prefix}" >> $inventory/hosts
+  echo "$hostname" >> $inventory/hosts
   delete_hosts() {
     rm inventory/hosts
   }
@@ -112,11 +115,11 @@ export ANSIBLE_HASH_BEHAVIOUR=merge
 export DISPLAY_SKIPPED_HOSTS=false
 export DISPLAY_OK_HOSTS=false
 export ANSIBLE_CALLBACK_WHITELIST=dense2
-export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-dense2}
+# export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-dense2}
 export ANSIBLE_CALLBACK_PLUGINS=$DIR/callback_plugins
 export ANSIBLE_INVENTORY_IGNORE_REGEX=build/*
 
-echo ansible-playbook  $ARGS $@ $PLAYBOOK
-eval ansible-playbook  $ARGS $@ $PLAYBOOK
+log "ansible-playbook $ARGS $PLAYBOOK"
+eval ansible-playbook $ARGS $PLAYBOOK
 
 # ] <-- needed because of Argbash
