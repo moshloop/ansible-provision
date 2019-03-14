@@ -22,7 +22,7 @@
     shell: vmrun getGuestIPAddress '{{vmx}}'
     register: vm_guest
     failed_when: false
-    until: vm_guest.rc == 0
+    until: vm_guest.rc == 0 and vm_guest.stdout != "172.17.0.1"
     retries: 300
     delay: 5
 

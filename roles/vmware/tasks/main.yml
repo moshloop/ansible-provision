@@ -47,7 +47,7 @@
         ip: "{{vm_guest.instance.hw_eth0.ipaddresses[0]}}"
 
     - set_fact:
-        vm_facts: "{{ vm_guest.instance | combine({ip: ip})}}"
+        vm_facts: "{{ vm_guest.instance | combine({'ip': ip})}}"
 
     - vmware_vm_group:
         <<: *vcenter_login
@@ -61,3 +61,4 @@
         uuid: "{{vm.instance.hw_product_uuid}}"
         state: present
         attributes: "{{vm_attributes | map_to_entries('name', 'value') }}"
+      failed_when: false
