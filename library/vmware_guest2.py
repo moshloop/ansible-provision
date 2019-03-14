@@ -421,9 +421,6 @@ instance:
     sample: None
 '''
 import logging
-logger = logging.getLogger('vmware')
-hdlr = logging.FileHandler('ansible-vmware.log')
-logger.addHandler(hdlr)
 
 
 import re
