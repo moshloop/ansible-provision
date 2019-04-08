@@ -11,6 +11,8 @@ except ImportError:
 cwd = os.getcwd()
 
 def hooks(hooks, type, run_once, groups):
+  if isinstance(hooks, str):
+    hooks = [hooks]
   suffix = "once.yml" if run_once else "yml"
   hooks.append(cwd)
   display.vv('Listing for: %s -> %s' % (hooks, groups))
