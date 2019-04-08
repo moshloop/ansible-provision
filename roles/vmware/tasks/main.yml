@@ -32,19 +32,23 @@
     - include_tasks: './_provision.yml'
       when: vm.instance is not defined
 
+
     - name: Waiting for IP
-      vmware_guest_facts:
+      vmware_guest_facts2:
           <<: *vcenter_login
           datacenter: "{{datacenter}}"
           uuid: "{{vm.instance.hw_product_uuid}}"
+          wait_for_ip_address: yes
       delegate_to: localhost
       register: vm_guest
-      until: "vm_guest.instance.hw_eth0.ipaddresses != None and vm_guest.instance.hw_eth0.ipaddresses[0] != ''"
-      retries: 300
-      delay: 5
+      # until: "vm_guest != None and vm_guest.get('instance', {}).get('ipv4','NONE') != 'NONE'"
+      retries: 3
+      delay: 10
+
+    - debug: var=vm_guest verbosity=1
 
     - set_fact:
-        ip: "{{vm_guest.instance.hw_eth0.ipaddresses[0]}}"
+        ip: "{{vm_guest.get('instance', {}).get('ipv4','')}}"
 
     - set_fact:
         vm_facts: "{{ vm_guest.instance | combine({'ip': ip})}}"

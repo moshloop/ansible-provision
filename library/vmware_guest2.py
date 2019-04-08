@@ -1039,7 +1039,6 @@ class PyVmomiHelper(PyVmomi):
             elif 'vlan' in network:
                 name = self.find_network_by_vlan(network['vlan'])
                 if name is not None:
-                    logger.debug("Found network %s for VLAN %s" % (name, network['vlan']))
                     network['name'] = name
                 else:
                     self.module.fail_json(msg="VLAN '%(vlan)s' does not exist." % network)
@@ -2174,13 +2173,6 @@ def main():
                                ['name', 'uuid'],
                            ],
                            )
-
-
-    if module.params['debug']:
-      logger.setLevel(logging.DEBUG)
-    else:
-      logger.setLevel(logging.INFO)
-
 
     result = {'failed': False, 'changed': False}
 
