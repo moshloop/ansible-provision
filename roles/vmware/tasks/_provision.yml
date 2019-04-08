@@ -14,6 +14,8 @@
       # name_match: last
     delegate_to: localhost
     register: vm_templates
+    retries: 3
+    delay: 10
 
   - fail:
       msg: "Template not found: {{template}}"
@@ -29,6 +31,8 @@
       cluster: "{{cluster}}"
     delegate_to: localhost
     register: datastores
+    retries: 3
+    delay: 10
 
   - debug: var=datastores verbosity=1
 
@@ -116,6 +120,10 @@
       datastore: "{{datastore.name}}"
       path: "/cloud-init/{{inventory_hostname}}.iso"
       validate_certs: no
+    register: vsphere_copy_result
+    retries: 3
+    delay: 10
+    until: vsphere_copy_result is not failed
     when: not ansible_check_mode
 
   - set_fact:
@@ -150,6 +158,9 @@
         num_cpus: "{{cpu | default(2) }}"
     register: vm
     delegate_to: localhost
+    retries: 3
+    delay: 10
+    until: vm is not failed
     when: not ansible_check_mode
 
   - debug: var=vm verbosity=2
@@ -165,6 +176,9 @@
         iso_path: "[{{datastore.name}}] cloud-init/{{inventory_hostname}}.iso"
     register: vm
     delegate_to: localhost
+    retries: 3
+    delay: 10
+    until: vm is not failed
     when: not ansible_check_mode
 
   - name: Power On
@@ -174,4 +188,7 @@
       state: poweredon
     register: vm
     delegate_to: localhost
+    retries: 3
+    delay: 10
+    until: vm is not failed
     when: not ansible_check_mode
