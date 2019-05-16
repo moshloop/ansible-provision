@@ -65,7 +65,7 @@
   tags:
     - always
 
-- debug: msg="Provisioned  {{inventory_hostname}} -> {{ip}}"
+- debug: msg="Provisioned  {{inventory_hostname}} -> {{ip | default('')}}"
 
 - block:
     - file:

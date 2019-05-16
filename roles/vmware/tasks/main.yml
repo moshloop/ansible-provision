@@ -12,7 +12,7 @@
           validate_certs: no
 
     - name: Finding VM
-      vmware_guest_facts:
+      vmware_guest_facts2:
         <<: *vcenter_login
         datacenter: "{{datacenter}}"
         folder: "/{{datacenter}}/vm"
@@ -38,20 +38,21 @@
           <<: *vcenter_login
           datacenter: "{{datacenter}}"
           uuid: "{{vm.instance.hw_product_uuid}}"
-          wait_for_ip_address: yes
+          wait_for_ip_address_subnet: "{{wait_for_ip_address_subnet | default('0.0.0.0/0')}}"
+          wait_for_ip_address_timeout: 300
       delegate_to: localhost
       register: vm_guest
-      # until: "vm_guest != None and vm_guest.get('instance', {}).get('ipv4','NONE') != 'NONE'"
+      when: wait_for_ip is not defined or wait_for_ip == 'true'
       retries: 3
       delay: 10
 
-    - debug: var=vm_guest verbosity=1
+    - debug: var=vm_guest
 
     - set_fact:
         ip: "{{vm_guest.get('instance', {}).get('ipv4','')}}"
 
     - set_fact:
-        vm_facts: "{{ vm_guest.instance | combine({'ip': ip})}}"
+        vm_facts: "{{ vm_guest.get('instance', {}) | combine({'ip': ip})}}"
 
     - vmware_vm_group:
         <<: *vcenter_login
