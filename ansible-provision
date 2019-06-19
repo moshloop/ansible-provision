@@ -130,7 +130,7 @@ export ANSIBLE_INVENTORY_IGNORE_REGEX=build/*
 log "ansible-playbook $ARGS $PLAYBOOK"
 
 if [[ "$print_ip" == "on" ]]; then
-  output_dir=.inventory/out/$hostname
+  output_dir=.out/$hostname
   mkdir -p $output_dir
   ARGS+=" -e output_dir=$output_dir"
 fi
