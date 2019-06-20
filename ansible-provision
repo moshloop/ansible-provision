@@ -104,7 +104,7 @@ delete_on_exit $PLAYBOOK
 [[ ! -e $PLAYBOOK ]] && ln -s $DIR/$ROLE_NAME.yml $PLAYBOOK
 
 
-if [[ "$dev_mode" == 'false' ]]; then
+if [[ "$dev_mode" == 'off' ]]; then
   checkout_role "deploy"
   checkout_role "provision"
 fi
