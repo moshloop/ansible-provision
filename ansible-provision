@@ -35,7 +35,6 @@ mkdir -p roles
 DIR=$PWD/roles/$ROLE_NAME
 GIT_BASE=$git_base
 DEV_MODE=$dev_mode
-PLAYBOOK=$PWD/roles/$ROLE_NAME/$ROLE_NAME.yml
 ARGS=
 
 for i in "${inventory[@]}"; do
@@ -114,6 +113,11 @@ if [[ ! -e $inventory/hosts && ! -e $inventory/hosts.ini ]]; then
   echo "$hostname" >> $inventory/hosts
   delete_on_exit $inventory/hosts
 fi
+
+cp $PWD/roles/$ROLE_NAME/$ROLE_NAME.yml $ROLE_NAME.yml
+PLAYBOOK=$ROLE_NAME.yml
+delete_on_exit $PLAYBOOK
+
 
 export ANSIBLE_HASH_BEHAVIOUR=merge
 export DISPLAY_SKIPPED_HOSTS=false
