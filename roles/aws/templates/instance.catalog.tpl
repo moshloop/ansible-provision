@@ -50,7 +50,7 @@ Resources:
           - DeviceName: {{data_disk_name | default ('/dev/sdb') }}
             Ebs:
               VolumeSize: {{data_disk_size}}
-              VolumeType: {{data_disk_type | default('gp2')}
+              VolumeType: {{data_disk_type | default('gp2')}}
         UserData: |
           {{hostvars[item]['userData'] | default('')}}
 {% if 'instance_role' in hostvars[item] %}
