@@ -18,6 +18,7 @@
       subnet: "{{subnet_name}}"
       misc: false
       fw: false
+      cert_generation: true
     when: target == 'aws-service-catalog'
 
   - debug: msg="misc={{misc}}, fw={{fw}}, elb={{elb}}, dns={{dns}}"
@@ -62,10 +63,11 @@
     tags: instances
     when: target != 'aws-service-catalog'
 
-  # - include_tasks: generateCert.yml
-  #   run_once: true
-  #   tags:
-  #     - elb
+  - include_tasks: generateCert.yml
+    run_once: true
+    tags:
+      - elb
+    when: cert_generation == 'true'
 
   - name: deploy instances
     import_tasks: instances.yml
