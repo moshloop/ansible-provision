@@ -62,10 +62,10 @@
     tags: instances
     when: target != 'aws-service-catalog'
 
-  - include_tasks: generateCert.yml
-    run_once: true
-    tags:
-      - elb
+  # - include_tasks: generateCert.yml
+  #   run_once: true
+  #   tags:
+  #     - elb
 
   - name: deploy instances
     import_tasks: instances.yml
